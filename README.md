@@ -17,16 +17,6 @@ A couple of examples of modules:
 - `__base`: this is sort of a cross between a misc and a base system config.
 - `__home`: a generic home manager module.
 
-### Dotfiles
-
-Dotfiles are defined in the `dotfiles` directory.
-<br><br>
-***They are kept separate from nix modules for readability and portability.***
-
-Dotfiles are used by nix in the following ways.
-- Some shell configurations are read as strings and imported into `shell` modules.
-- Some are utilized via `home manager` to specify user configuration files.
-
 ### Systems
 
 Specific workstation configurations are stored here.
