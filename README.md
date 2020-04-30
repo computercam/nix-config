@@ -1,8 +1,4 @@
-# Unix bootstrapping and configuration
-
-## Nix
-
-Most of my system configurations a managed using nix and home-manager.
+# NixOS and Nix-Darwin configuration
 
 ### Modules
 
