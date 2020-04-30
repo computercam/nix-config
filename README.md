@@ -15,7 +15,6 @@ A couple of examples of modules:
 - `shell`: zsh configs and shell related packages to make those configurations work.
 - `nvidia`: configures and installs the drivers for nvidia gpus on nixos.
 - `__base`: this is sort of a cross between a misc and a base system config.
-- `__home`: a generic home manager module.
 
 ### Systems
 
