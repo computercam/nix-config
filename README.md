@@ -1,35 +1,46 @@
-# NixOS and Nix-Darwin configuration
+# NixOS and Nix-Darwin configurations
+
+## Configuration
+
+### Global
+
+Global configurations are stored in the `./config/global/global.nix` file.
+These define configuration that apply to every system, regardless of its purpose.
 
 ### Modules
 
-My configuration includes `modules` which  definie a component of functionality.
+Configurations defined within the `./config/modules` directory define a components of functionality. 
+
+- Shared modules are defined in the `common` directory.
 - Nixos specific modules are defined in the `nixos` sub-directory.
 - Darwin specific modules are defined in the `darwin` sub-directory.
-- Shared modules are defined in the `common` directory.
 
-A couple of examples of modules:
+Here are some examples of modules:
+
 - `shell`: zsh configs and shell related packages to make those configurations work.
 - `nvidia`: configures and installs the drivers for nvidia gpus on nixos.
-- `__base`: this is sort of a cross between a misc and a base system config.
+
+Inividual modules are meant to be imported into System configurations.
 
 ### Systems
 
-Specific workstation configurations are stored here.
+Specific workstation configurations are stored in the `./config/systems/` directory.
+
 - Configurations are in a subdirectory with a system specific name.
 - Subdirectory must contain a `configuration.nix` file.
   - Specific modules are imported from the `modules` directory.
   - You will probably want to import `modules/common/__base.nix`.
 - Hardware and workstations specific configurations should be defined here instead of in `modules`.
 
-### Installing
+## Installing
 
-#### Nixos
+### Nixos
 
 If you're running the NixOS live install medium, use `__scripts/nixos/nixos-os-installer.sh` to help install NixOS.
 
 If NixOS is already installed, you don't need to do anything else to install nix.
 
-#### OSX
+### OSX
 
 If you're using OSX, you can use the scripts in `__scripts/darwin/` to get you started. 
 
@@ -42,7 +53,7 @@ I would recommend doing following:
 3. `__scripts/darwin/nix-darwin-install.sh`
     - This script will install nix-darwin using nix.
 
-### Initializing your configuraiton
+## Initializing your configuraiton
 
 For the initial configuration of your system you need to run the following command from the project directory.
 
