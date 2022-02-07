@@ -1,28 +1,33 @@
 #!/usr/bin/env bash
+DIR=`cd $(dirname "${BASH_SOURCE[0]}") && pwd`
+TIMSTAMP=`date | tr -s " " "-"`
 
-if [[ -n "$1" ]];
+if [[ ! -n "$1" ]];
 then
-  _conf_path="$HOME/_unixconf_nix/systems/$1/configuration.nix"
+  echo "System-Name argument missing. Please use the name of a sub-directory under the 'config/systems' folder."
+  exit 1
+fi
+  
+CONF="$DIR/config/systems/$1/configuration.nix"
 
-  if [[ -e "$_conf_path" ]];
-  then
-    echo "Building configuration in $_conf_path"
+if [[ ! -e "$CONF" ]];
+then
+  echo "'configuration.nix' does not exists in $CONF"
+  exit 1
+fi
 
-    if [[ `uname` == "Darwin" ]];
-    then
-      sudo ln -sf $_conf_path $HOME/.nixpkgs/darwin-configuration.nix
-      darwin-rebuild switch
-    fi
+echo "Building configuration in $CONF"
 
-    # TODO: Need to differentiate between other linux and nixos
-    if [[ `uname` == "Linux" ]];
-    then
-      sudo ln -sf $_conf_path /etc/nixos/configuration.nix
-      nixos-rebuild switch
-    fi
-  else
-    echo "'configuration.nix' does not exists in $_conf_path"
-  fi
-else
-  echo "System name argument missing. Please use the name of a sub-directory under the 'systems' folder."
+if [[ `uname` == "Darwin" ]];
+then
+  mkdir -p $HOME/.nixpkgs
+  sudo ln -sf $CONF $HOME/.nixpkgs/darwin-configuration.nix
+  darwin-rebuild switch
+fi
+
+if [[ `uname` == "Linux" ]];
+then
+  sudo cp -P /etc/nixos/configuration.nix /etc/nixos/configuration.nix.bak_${TIMSTAMP}
+  sudo ln -sf $CONF /etc/nixos/configuration.nix
+  sudo nixos-rebuild switch
 fi
