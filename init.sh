@@ -25,7 +25,6 @@ then
   darwin-rebuild switch
 fi
 
-# TODO: Need to differentiate between other linux and nixos
 if [[ `uname` == "Linux" ]];
 then
   sudo cp -P /etc/nixos/configuration.nix /etc/nixos/configuration.nix.bak_${TIMSTAMP}
