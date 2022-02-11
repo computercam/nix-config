@@ -21,6 +21,7 @@ echo "Building configuration in $CONF"
 if [[ `uname` == "Darwin" ]];
 then
   mkdir -p $HOME/.nixpkgs
+  sudo cp -P $HOME/.nixpkgs/darwin-configuration.nix $HOME/.nixpkgs/darwin-configuration.nix.bak_${TIMSTAMP}
   sudo ln -sf $CONF $HOME/.nixpkgs/darwin-configuration.nix
   darwin-rebuild switch
 fi
