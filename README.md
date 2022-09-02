@@ -36,7 +36,7 @@ Specific workstation configurations are stored in the `./config/systems/` direct
 
 ### Nixos
 
-If you're running the NixOS live install medium, use `__scripts/nixos/nixos-os-installer.sh` to help install NixOS.
+If you're running the NixOS live install medium, use the live medium's built in installer. If you'd rather not, you could also use `__scripts/nixos/nixos-os-installer.sh` to help install NixOS.
 
 If NixOS is already installed, you don't need to do anything else to install nix.
 
