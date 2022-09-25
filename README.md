@@ -65,3 +65,14 @@ This command will:
 - Link the paths to use your system specific `configuration.nix` files as the global configuration file on the system.
   - This makes it so that running `nixos-rebuild` or `darwin-rebuild` use your `configuration.nix` file instead of the default one.
 - Run the nix build command which will configure your system.
+
+
+## Testing Nix Expressions in the CLI
+
+You can evaluate nix expressions using `nix-instantiate` .
+
+Here's an example:
+
+```bash
+nix-instantiate --eval --expr 'with import <nixpkgs> {}; ([ NIX EXPRESSION HERE. we can also use `lib` and `builtins` as well. ])'
+```
