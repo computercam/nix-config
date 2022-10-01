@@ -32,7 +32,7 @@ Specific workstation configurations are stored in the `./config/systems/` direct
   - You will probably want to import `modules/common/__base.nix`.
 - Hardware and workstations specific configurations should be defined here instead of in `modules`.
 
-## Installing Nix
+## Installing
 
 ### Nixos
 
