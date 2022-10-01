@@ -32,13 +32,13 @@ Specific workstation configurations are stored in the `./config/systems/` direct
   - You will probably want to import `modules/common/__base.nix`.
 - Hardware and workstations specific configurations should be defined here instead of in `modules`.
 
-## Installing
+## Installing Nix
 
 ### Nixos
 
-If you're running the NixOS live install medium, use the live medium's built in installer. If you'd rather not, you could also use `__scripts/nixos/nixos-os-installer.sh` to help install NixOS.
+If you're running the NixOS live install medium, use the live medium's built in installer. 
 
-If NixOS is already installed, you don't need to do anything else to install nix.
+If NixOS is already installed, you don't need to do anything else.
 
 ### OSX
 
@@ -61,11 +61,9 @@ For the initial configuration of your system you need to run the following comma
 init.sh [system name]
 ```
 
-This command will:
-- Link the paths to use your system specific `configuration.nix` files as the global configuration file on the system.
-  - This makes it so that running `nixos-rebuild` or `darwin-rebuild` use your `configuration.nix` file instead of the default one.
-- Run the nix build command which will configure your system.
+This command will Link the paths to use your system specific `configuration.nix` files as the global configuration file on the system.
 
+_This makes it so that running `nixos-rebuild` or `darwin-rebuild` use your `configuration.nix` file instead of the default one._
 
 ## Testing Nix Expressions in the CLI
 
