@@ -1,3 +1,6 @@
 .DS_Store
 __scripts/darwin/result**
 result
+secrets/*
+!secrets/secrets.nix
+!secrets/*.age
