@@ -16,7 +16,7 @@ then
   exit 1
 fi
 
-echo "Building configuration in $CONF"
+echo "Initializing configuration in $CONF. Run nixos-rebuild switch to activate."
 
 if [[ `uname` == "Darwin" ]];
 then

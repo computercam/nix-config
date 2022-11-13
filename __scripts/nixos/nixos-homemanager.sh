@@ -1,5 +1,14 @@
 #!/usr/bin/env sh
-version=`nixos-version | cut -d"." -f 1,2`
+if [ "$EUID" -ne 0 ]
+  then echo "Please run as root"
+  exit
+fi
 
-sudo nix-channel --add https://github.com/nix-community/home-manager/archive/release-${version}.tar.gz home-manager
+channel=`sudo nix-channel --list | grep nixos`
+name=`[[ $channel == *"unstable" ]] && echo master || echo release`
+version=`nixos-version | cut -d"." -f 1,2 | cut -d"p" -f 1`
+archive=`[[ $name == *"master" ]] && echo ${name} || echo "${name}-${version}"`
+url="https://github.com/nix-community/home-manager/archive/${archive}.tar.gz"
+
+sudo nix-channel --add $url home-manager
 sudo nix-channel --update
