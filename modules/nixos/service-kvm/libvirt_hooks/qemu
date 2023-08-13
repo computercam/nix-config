@@ -1,0 +1,24 @@
+#!/bin/sh
+
+set -e
+
+GUEST_NAME="$1"
+HOOK_NAME="$2"
+STATE_NAME="$3"
+
+HOOKPATH="/var/lib/libvirt/hooks/qemu.d/$GUEST_NAME/$HOOK_NAME/$STATE_NAME"
+
+echo 
+
+if [ -f "$HOOKPATH" ] && [ -s "$HOOKPATH" ] && [ -x "$HOOKPATH" ]; 
+then
+    eval $HOOKPATH $@
+elif [ $STATE_NAME == "prepare" ] && [ $STATE_NAME == "begin" ]; 
+then
+  systemctl start libvirt-nosleep@"$GUEST_NAME"
+  /var/lib/libvirt/hooks/start.sh
+elif [ $HOOK_NAME == "stopped" ] && [ $STATE_NAME == "end" ]; 
+then
+  systemctl stop libvirt-nosleep@"$GUEST_NAME"
+  /var/lib/libvirt/hooks/stop.sh
+fi
