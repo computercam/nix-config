@@ -2,15 +2,11 @@
 
 ## Configuration
 
-### Global
-
-Global configurations are stored in the `./config/global/global.nix` file.
-These define configuration that apply to every system, regardless of its purpose.
-
 ### Modules
 
-Configurations defined within the `./config/modules` directory define a components of functionality. 
+Configurations defined within the `./modules` directory define a components of functionality. 
 
+- Global configurations are stored in the `global` directory.
 - Shared modules are defined in the `common` directory.
 - Nixos specific modules are defined in the `nixos` sub-directory.
 - Darwin specific modules are defined in the `darwin` sub-directory.
@@ -22,14 +18,14 @@ Here are some examples of modules:
 
 Inividual modules are meant to be imported into System configurations.
 
-### Systems
+### Hosts
 
-Specific workstation configurations are stored in the `./config/systems/` directory.
+Specific workstation configurations are stored in the `./hosts/` directory.
 
 - Configurations are in a subdirectory with a system specific name.
 - Subdirectory must contain a `configuration.nix` file.
   - Specific modules are imported from the `modules` directory.
-  - You will probably want to import `modules/common/__base.nix`.
+  - You will probably want to import from `modules/common`.
 - Hardware and workstations specific configurations should be defined here instead of in `modules`.
 
 ## Installing
@@ -42,15 +38,15 @@ If NixOS is already installed, you don't need to do anything else.
 
 ### OSX
 
-If you're using OSX, you can use the scripts in `__scripts/darwin/` to get you started. 
+If you're using OSX, you can use the scripts in `scripts/darwin/` to get you started. 
 
 I would recommend doing following:
 
-1. `__scripts/darwin/nix-drive.sh`
+1. `scripts/darwin/nix-drive.sh`
     - This script will create a separate mount point for nix at `/nix`
-2. `__scripts/darwin/nix-install.sh`
+2. `scripts/darwin/nix-install.sh`
     - This script will install nix if the previous script created `/nix`
-3. `__scripts/darwin/nix-darwin-install.sh`
+3. `scripts/darwin/nix-darwin-install.sh`
     - This script will install nix-darwin using nix.
 
 ## Initializing your configuraiton
@@ -72,5 +68,5 @@ You can evaluate nix expressions using `nix-instantiate` .
 Here's an example:
 
 ```bash
-nix-instantiate --eval --expr 'with import <nixpkgs> {}; ([ NIX EXPRESSION HERE. we can also use `lib` and `builtins` as well. ])'
+nix-instantiate --eval --expr 'with import <nixpkgs> {}; (NIX EXPRESSION HERE. we can also use `lib` and `builtins` as well.)'
 ```
