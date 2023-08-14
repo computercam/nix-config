@@ -2,6 +2,15 @@
 
 ## Configuration
 
+### Flake
+
+This configuration uses flakes with multiple host configurations. 
+
+- Host systems are declared in this file with a hostname that cooresponds to directories in the `./hosts` directory.
+  - Host configurations should be defined at `./hosts/[hostname]/configuration.nix` and imported here.
+- Global system configurations are imported to this file.
+  - Global configurations should be defined at `./modules/global` and imported here.
+
 ### Modules
 
 Configurations defined within the `./modules` directory define a components of functionality. 
@@ -16,17 +25,15 @@ Here are some examples of modules:
 - `shell`: zsh configs and shell related packages to make those configurations work.
 - `nvidia`: configures and installs the drivers for nvidia gpus on nixos.
 
-Inividual modules are meant to be imported into System configurations.
+Inividual modules are meant to be imported into Host configurations.
 
 ### Hosts
 
-Specific workstation configurations are stored in the `./hosts/` directory.
+Host specific configurations are stored in the `./hosts/` directory.
 
 - Configurations are in a subdirectory with a system specific name.
 - Subdirectory must contain a `configuration.nix` file.
-  - Specific modules are imported from the `modules` directory.
-  - You will probably want to import from `modules/common`.
-- Hardware and workstations specific configurations should be defined here instead of in `modules`.
+- Hardware and workstations specific configurations should be defined within the `[hostname]` directory instead of in `modules`.
 
 ## Installing
 
@@ -54,12 +61,10 @@ I would recommend doing following:
 For the initial configuration of your system you need to run the following command from the project directory.
 
 ```
-init.sh [system name]
+init.sh [hostname]
 ```
 
-This command will Link the paths to use your system specific `configuration.nix` files as the global configuration file on the system.
-
-_This makes it so that running `nixos-rebuild` or `darwin-rebuild` use your `configuration.nix` file instead of the default one._
+This command will set your hostname to `[hostname]` and link `./flake.nix` to your global configuration directory. _This makes it so that running `nixos-rebuild` or `darwin-rebuild` uses your `flake.nix`._
 
 ## Testing Nix Expressions in the CLI
 
