@@ -1,7 +1,9 @@
-with nixpkgs.lib;
-with nixpkgs.stdenv;
+{ lib, pkgs, zshInitExtraConfig, ... }:
 
-zshInitExtraConfig: ''
+with lib;
+with pkgs.stdenv;
+
+''
   function pathIf () {
     [ -e "$1" ] && export PATH="$PATH:$1"
   }

@@ -1,6 +1,9 @@
-with nixpkgs;
-with nixpkgs.stdenv; 
+{ lib, pkgs, ... }:
+
+with pkgs;
+with pkgs.stdenv; 
 with lib; 
+
 {
   ohMyZsh = {
     enable = true;
@@ -21,22 +24,22 @@ with lib;
     LESS_TERMCAP_ZV = "$(tput rsubm)";
     LESS_TERMCAP_ZW = "$(tput rsupm)";
     LESS = "--RAW-CONTROL-CHARS";
-    TERMINAL = "${nixpkgs.alacritty}/bin/alacritty";
-    EDITOR = "${nixpkgs.neovim}/bin/nvim";
-    VISUAL = "${nixpkgs.vscode}/bin/code";
+    TERMINAL = "${pkgs.alacritty}/bin/alacritty";
+    EDITOR = "${pkgs.neovim}/bin/nvim";
+    VISUAL = "${pkgs.vscode}/bin/code";
     TERM = "xterm-256color";
   };
   aliases = {
-    cat = ''${nixpkgs.bat}/bin/bat'';
+    cat = ''${pkgs.bat}/bin/bat'';
     cd = ''z'';
     clearhistory = ''cat /dev/null > $HOME/.zsh_history ; exit'';
-    less = ''${nixpkgs.bat}/bin/bat'';
-    ls = ''${nixpkgs.exa}/bin/exa --icons -h'';
-    lsip = ''${nixpkgs.curl}/bin/curl http://ipecho.net/plain; echo'';
-    lsnetwork = ''clear ; sudo ${nixpkgs.nmap}/bin/nmap -sS -T aggressive 192.168.0.0/24 | less'';
-    lsports = ''clear ; ${nixpkgs.nmap}/bin/nmap -sS -T aggressive localhost'';
-    vi = ''${nixpkgs.neovim}/bin/nvim'';
-    vim = ''${nixpkgs.neovim}/bin/nvim'';
+    less = ''${pkgs.bat}/bin/bat'';
+    ls = ''${pkgs.exa}/bin/exa --icons -h'';
+    lsip = ''${pkgs.curl}/bin/curl http://ipecho.net/plain; echo'';
+    lsnetwork = ''clear ; sudo ${pkgs.nmap}/bin/nmap -sS -T aggressive 192.168.0.0/24 | less'';
+    lsports = ''clear ; ${pkgs.nmap}/bin/nmap -sS -T aggressive localhost'';
+    vi = ''${pkgs.neovim}/bin/nvim'';
+    vim = ''${pkgs.neovim}/bin/nvim'';
   };
   setOpts = [
     "AUTOCD"
@@ -86,18 +89,18 @@ with lib;
     # "/usr/libexec/java_home"
     # "/run/current-system/sw/bin/"
   ];
-  fpaths = with nixpkgs; [
+  fpaths = with pkgs; [
     "${zsh-completions}/share/zsh/site-functions"
     "${zsh-fast-syntax-highlighting}/share/zsh/site-functions"
   ];
-  sources = with nixpkgs; [
+  sources = with pkgs; [
     "${zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
     "${zsh-history-substring-search}/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
     "${zsh-you-should-use}/share/zsh/plugins/you-should-use/you-should-use.plugin.zsh"
   ];
   extras = [
-    ''(eval "nohup ${nixpkgs.pywal}/bin/wal -Rn" > /dev/null 2>&1 &)''
-    ''eval "$(${nixpkgs.starship}/bin/starship init zsh)"''
-    ''eval "$(${nixpkgs.zoxide}/bin/zoxide init zsh)"''
+    ''(eval "nohup ${pkgs.pywal}/bin/wal -Rn" > /dev/null 2>&1 &)''
+    ''eval "$(${pkgs.starship}/bin/starship init zsh)"''
+    ''eval "$(${pkgs.zoxide}/bin/zoxide init zsh)"''
   ];
 }
