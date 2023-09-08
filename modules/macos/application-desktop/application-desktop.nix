@@ -15,7 +15,7 @@
     "dash"
     "disk-drill"
     "discord"
-    "docker"
+    # "docker"
     "element"
     "firefox"
     "geekbench"

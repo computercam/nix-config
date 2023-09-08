@@ -35,26 +35,15 @@ Host specific configurations are stored in the `./hosts/` directory.
 - Subdirectory must contain a `configuration.nix` file.
 - Hardware and workstations specific configurations should be defined within the `[hostname]` directory instead of in `modules`.
 
-## Installing
+## Installing Nix
 
 ### Nixos
-
-If you're running the NixOS live install medium, use the live medium's built in installer. 
 
 If NixOS is already installed, you don't need to do anything else.
 
 ### OSX
 
-If you're using OSX, you can use the scripts in `scripts/darwin/` to get you started. 
-
-I would recommend doing following:
-
-1. `scripts/darwin/nix-drive.sh`
-    - This script will create a separate mount point for nix at `/nix`
-2. `scripts/darwin/nix-install.sh`
-    - This script will install nix if the previous script created `/nix`
-3. `scripts/darwin/nix-darwin-install.sh`
-    - This script will install nix-darwin using nix.
+If you're using OSX, run: `scripts/darwin/nix-install.sh`
 
 ## Initializing your configuraiton
 
@@ -64,9 +53,11 @@ For the initial configuration of your system you need to run the following comma
 init.sh [hostname]
 ```
 
-This command will set your hostname to `[hostname]` and link `./flake.nix` to your global configuration directory. _This makes it so that running `nixos-rebuild` or `darwin-rebuild` uses your `flake.nix`._
+This command will set your hostname to `[hostname]` and link `./flake.nix` to your configuration directory.
 
-## Testing Nix Expressions in the CLI
+---
+
+## misc
 
 You can evaluate nix expressions using `nix-instantiate` .
 
