@@ -11,7 +11,6 @@ with lib;
   nix.settings.experimental-features = "nix-command flakes";
   nixpkgs.config.allowUnfree = true;
   programs.zsh.enable = true;
-  services.nix-daemon.enable = true;
   time.timeZone = config.cfg.localization.timezone;
 
   # nix.settings.allowed-users = [ config.cfg.user.name ];
