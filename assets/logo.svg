@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="1000mm"
+   height="1000mm"
+   viewBox="0 0 1000 1000"
+   version="1.1"
+   id="svg1715"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="white.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1717"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.11436325"
+     inkscape:cx="2631.9644"
+     inkscape:cy="2360.8983"
+     inkscape:window-width="1920"
+     inkscape:window-height="1043"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1712" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g1684"
+       transform="matrix(4.5105552,0,0,4.5105552,-732.10732,66.986701)"
+       style="fill:#ffffff">
+      <path
+         d="m 244.293,163 16.744,29 h 19.63 l -50.807,-88 -9.815,17 14.434,25 -21.6511,37.5 4.9071,8.5 h 9.815 z"
+         id="path2788"
+         style="fill:#ffffff" />
+      <path
+         d="m 335.804,104.5 h 43.301 l 4.907,-8.5 -4.907,-8.5 h -33.487 l 16.744,-29 -9.815,-17 -50.807,88 h 19.63 z"
+         id="path2786"
+         style="fill:#ffffff" />
+      <path
+         d="M 278.068,37.5 H 249.201 L 227.55,0 h -9.815 l -4.9071,8.5 16.7431,29 h -33.4862 l -9.815,17 H 287.883 Z"
+         id="path2784"
+         style="fill:#ffffff" />
+      <path
+         d="m 328.587,192 4.907,-8.5 -16.743,-29 h 33.486 l 9.815,-17 H 258.439 l 9.815,17 h 28.867 l 21.651,37.5 z"
+         id="path2758"
+         style="fill:#ffffff" />
+      <path
+         d="m 244.582,62.5 h -19.63 l -14.4335,25 h -43.3013 l -4.9074,8.5 4.9075,8.5 h 33.4863 l -16.7432,29 9.8149,17 z"
+         id="path2756"
+         style="fill:#ffffff" />
+      <path
+         d="M 326.277,71 311.843,46 333.494,8.5 328.587,0 h -9.815 L 302.029,29 285.285,0 h -19.63 l 50.807,88 z"
+         id="path2754"
+         style="fill:#ffffff" />
+    </g>
+  </g>
+</svg>
