@@ -60,7 +60,9 @@
           CONTAINERS = "1";
           POST = "0"; 
         };
-        extraOptions = [ "--network=${config.cfg.docker.networking.dockernet}" ];
+        extraOptions = [ 
+	  "--network=${config.cfg.docker.networking.dockernet}" 
+	];
       };
     };
 

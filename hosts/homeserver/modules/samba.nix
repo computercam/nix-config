@@ -24,5 +24,11 @@
        "force group" = ''"cameron"'';
     };
 
+    VSTs = {
+      path = "/Volumes/Storage/VSTs";
+       "valid users" = ''"cameron"'';
+       "force user" = ''"cameron"'';
+       "force group" = ''"cameron"'';
+    };
   };
 }

@@ -49,7 +49,9 @@
           MYSQL_USER = "nextcloud_db";
         };
         environmentFiles = [ /Volumes/Server/docker/nextcloud/.env.secret ];
-        extraOptions = [ "--network=${config.cfg.docker.networking.dockernet}" ];
+        extraOptions = [ 
+	  "--network=${config.cfg.docker.networking.dockernet}" 
+	];
       };
     };
   };

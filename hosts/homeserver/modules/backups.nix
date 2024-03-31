@@ -14,7 +14,8 @@ let
     persistentTimer = true;
     appendFailedSuffix = false;
     exclude = [ "re:^.*\.sync/" ];
-    environment.BORG_RSH = ''ssh -i /home/cameron/_unixconf_nix/_/id_rsa.borgbackup'';
+    # environment.BORG_RSH = ''ssh -i /home/cameron/_unixconf_nix/_/id_rsa.borgbackup'';
+    environment.BORG_RSH = ''ssh -i ${config.users.users."${config.cfg.user.name}".home}/_unixconf_nix/_/id_rsa.borgbackup'';
   };
   
   ServerLocal = mkMerge [ defaults {
@@ -41,6 +42,11 @@ let
     postHook = ''
     	systemctl start docker.socket
 	systemctl start docker.service
+        systemctl list-units --type=service --all \
+          | grep docker- \
+          | tr -s " " \
+          | cut -d" " -f 2  \
+          | xargs systemctl restart
     '';
     startAt = "*-*-* 01:00:00";
     exclude = mkForce [ "re:^.*docker_storage_root/" ];
@@ -75,8 +81,8 @@ let
 
 in {
   config = {
-    age.identityPaths = [ ../../../../_/id_rsa.borgbackup ];
-    age.secrets.borgbackup.file = ../../../../secrets/borgbackup.age;
+    age.identityPaths = [ "${config.users.users."${config.cfg.user.name}".home}/_unixconf_nix/_/id_rsa.borgbackup" ];
+    age.secrets.borgbackup.file = ../../../secrets/borgbackup.age;
 
     services.borgbackup = {
       jobs = {
