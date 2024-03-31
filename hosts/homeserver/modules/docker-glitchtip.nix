@@ -16,7 +16,9 @@ let
   defaultDependsOn = [ "glitchtip_postgres" "glitchtip_redis" ];
 in {
   config = {
-    age.secrets.glitchtip_key.file = ../../../secrets/glitchtip_key.age;
+    age.secrets = {
+      glitchtip_key.file = ../../../secrets/glitchtip_key.age;
+    };
 
     systemd.services.docker-glitchtip.preStart = ''
       ENV_FILE="/Volumes/Server/docker/glitchtip/.env.secret"
