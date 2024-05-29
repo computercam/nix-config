@@ -30,5 +30,12 @@
        "force user" = ''"cameron"'';
        "force group" = ''"cameron"'';
     };
+
+    # MNT = {
+    #   path = "/mnt";
+    #    "valid users" = ''"cameron"'';
+    #    "force user" = ''"cameron"'';
+    #    "force group" = ''"cameron"'';
+    # };
   };
 }

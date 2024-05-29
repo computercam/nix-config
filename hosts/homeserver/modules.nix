@@ -20,9 +20,12 @@
     ./modules/docker-nextcloud.nix
     ./modules/docker-resiliosync.nix
     ./modules/docker-swag.nix
+    # ./modules/docker-penpot.nix
     # ./modules/docker-vscode.nix
     # ./modules/docker-copilot-chatgpt.nix
-    ./modules/docker-glitchtip.nix
+    ./modules/docker-matrix/docker-matrix.nix
+    # ./modules/docker-pypiserver.nix
+    # ./modules/docker-glitchtip.nix
     ./modules/docker-gpt4free.nix
     ./modules/docker.nix
     ./modules/filesystems.nix

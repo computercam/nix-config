@@ -21,7 +21,7 @@
       echo "CF_ZONE_ID=$CF_ZONE_ID" >> $ENV_FILE
 
       chmod 600 $ENV_FILE
-      chown root.root $ENV_FILE
+      chown root:root $ENV_FILE
     '';
 
     virtualisation.oci-containers.containers = {
