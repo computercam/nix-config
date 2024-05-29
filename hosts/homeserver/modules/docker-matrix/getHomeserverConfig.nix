@@ -18,7 +18,7 @@ with pkgs.stdenv;
 # each option, go to docs/usage/configuration/config_documentation.md or
 # https://element-hq.github.io/synapse/latest/usage/configuration/config_documentation.html
 
-server_name: "${homeserverConfig.domain}"
+server_name: "${homeserverConfig.subdomain}.${homeserverConfig.domain}"
 pid_file: /data/homeserver.pid
 listeners:
   - port: ${builtins.toString homeserverConfig.port}
@@ -37,13 +37,13 @@ database:
     host: ${homeserverConfig.postgres.host}
     cp_min: 5
     cp_max: 10
-log_config: "/data/${homeserverConfig.domain}.log.config"
+log_config: "/data/${homeserverConfig.subdomain}.${homeserverConfig.domain}.log.config"
 media_store_path: /data/media_store
 registration_shared_secret: "n;OXhlEF_3:a&GjQMX,NQZhys-~oG1KmQYXe+Gb&7O0m.1Kdrr"
 report_stats: true
 macaroon_secret_key: "D.#0UVV4Hc1.dd0ojrWkWf^,c@:NHRP,PMTt4:R8hC:ACm1wzR"
 form_secret: "GEpZSh#yB:4:8es12wf;&NTBk&NYMPyj6;rK,D6Iit7oVz2QIO"
-signing_key_path: "/data/${homeserverConfig.domain}.signing.key"
+signing_key_path: "/data/${homeserverConfig.subdomain}.${homeserverConfig.domain}.signing.key"
 trusted_key_servers:
   - server_name: "matrix.org"
 ''

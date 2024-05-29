@@ -8,8 +8,8 @@ with pkgs.stdenv;
 {
     "default_server_config": {
         "m.homeserver": {
-            "base_url": "https://${homeserverConfig.domain}",
-            "server_name": "matrix.org"
+            "base_url": "https://${homeserverConfig.subdomain}.${homeserverConfig.domain}",
+            "server_name": "${homeserverConfig.domain}"
         },
         "m.identity_server": {
             "base_url": "https://vector.im"
@@ -29,11 +29,13 @@ with pkgs.stdenv;
         "https://scalar-staging.vector.im/api",
         "https://scalar-staging.riot.im/scalar/api"
     ],
+    "bug_report_endpoint_url": "https://element.io/bugreports/submit",
+    "uisi_autorageshake_app": "element-auto-uisi",
     "default_country_code": "US",
     "show_labs_settings": false,
     "features": {},
     "default_federate": true,
-    "default_theme": "light",
+    "default_theme": "dark",
     "room_directory": {
         "servers": ["matrix.org"]
     },
