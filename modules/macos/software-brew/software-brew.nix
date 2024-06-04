@@ -18,7 +18,7 @@
     "grandperspective"
     "handbrake"
     "inkscape"
-    "iterm2"
+    "wezterm"
     "karabiner-elements"
     "krita"
     "launchcontrol"
