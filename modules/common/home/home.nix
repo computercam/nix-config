@@ -66,8 +66,8 @@ in {
         # lolcat
         # pipes
         toilet
-        # pywal
-        # colorz
+        pywal
+        colorz
       ];
   };
 
