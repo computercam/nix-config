@@ -1,17 +1,14 @@
 { config, lib, pkgs, options, ... }: {
-  imports = [ ./modules.nix ];
-  
+  config.homebrew.taps = [];
+
+
   config.homebrew.casks = [        
     "appcleaner"
     "balenaetcher"
-    "balenaetcher"
+    "basictex"
     "bitwig-studio"
+    "boltai"
     "brave-browser"
-    "charles"
-    "chromium"
-    "contexts"
-    "darktable"
-    "dash"
     "discord"
     "disk-drill"
     "element"
@@ -27,14 +24,13 @@
     "launchcontrol"
     "libreoffice"
     "little-snitch"
-    "moom"
-    "musescore"
-    "notion"
     "obs"
     "obsidian"
+    "ollama"
     "openvpn-connect"
     "protonmail-bridge"
     "protonvpn"
+    "raycast"
     "resilio-sync"
     "spotify"
     "the-unarchiver"
@@ -42,9 +38,15 @@
     "utm"
     "visual-studio-code"
     "vlc"
-    "wireshark"
-    "zenmap"
+    "zed"
+    "zed@preview"
     # "blender"
+    # "charles"
+    # "darktable"
+    # "dash"
     # "docker"
+    # "musescore"
+    # "vscodium"
+    # "wireshark"
   ];
 }
