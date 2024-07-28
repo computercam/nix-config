@@ -5,7 +5,7 @@ in {
   imports = [ ./hardware-configuration.nix ./modules.nix ];
   boot.loader.grub.device = "/dev/nvme0n1";
   boot.loader.grub.enable = true;
-  cfg.os.version = "23.11";
+  cfg.os.version = "24.11";
   hardware.enableRedistributableFirmware = true;
   nix.settings.auto-optimise-store = true;
   nix.settings.max-jobs = 8;
