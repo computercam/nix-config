@@ -8,7 +8,7 @@
           "${config.cfg.networking.static.ip_address}:222:22"
         ];
         volumes = [
-          "/Volumes/Server/docker/gitea:/data"
+          "/Volumes/Server/docker/cybercrescendo/gitea:/data"
           "/etc/timezone:/etc/timezone:ro"
           "/etc/localtime:/etc/localtime:ro"
         ];
@@ -17,7 +17,7 @@
           USER_GID = "992";
         };
         extraOptions = [ 
-          "--network=${config.cfg.docker.networking.dockernet}"
+          "--network=cybercrescendo"
           "--label=swag=enable"
         ];
       };

@@ -1,0 +1,15 @@
+
+id: imessage
+url: "http://${conf.wsproxy.docker.host}:29331"
+as_token: ${conf.wsproxy.docker.environment.AS_TOKEN}
+hs_token: ${conf.wsproxy.docker.environment.HS_TOKEN}
+sender_localpart: ${conf.wsproxy.docker.environment.SYNC_PROXY_SHARED_SECRET}
+rate_limited: false
+namespaces:
+    users:
+        - regex: ^@imessagebot:${conf.subdomain}\.${conf.hostname}\.${conf.tld}$
+          exclusive: true
+        - regex: ^@imessage_.*:${conf.subdomain}\.${conf.hostname}\.${conf.tld}$
+          exclusive: true
+de.sorunome.msc2409.push_ephemeral: true
+push_ephemeral: true

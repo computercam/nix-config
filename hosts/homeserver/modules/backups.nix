@@ -22,13 +22,12 @@ let
     paths = "/Volumes/Server";
     repo = "${localBackupRoot}/Server";
     preHook = ''
-      systemctl list-units --type=service --all \
-        | grep docker- \
-        | tr -s " " \
-        | cut -d" " -f 2  \
-        | xargs systemctl stop
+    	systemctl stop docker.socket
+	    systemctl stop docker.service
     '';
     postHook = ''
+    	systemctl start docker.socket
+	    systemctl start docker.service
       systemctl list-units --type=service --all \
         | grep docker- \
         | tr -s " " \

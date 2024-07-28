@@ -14,4 +14,5 @@ in {
   users.groups.rae.name = "rae";
   users.users.rae.group = "rae";
   users.users.rae.isNormalUser = true;
+  programs.nix-ld.enable = true;
 }
