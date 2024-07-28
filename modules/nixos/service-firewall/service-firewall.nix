@@ -4,7 +4,7 @@
     networking.firewall.enable = true;
 
     # TODO: Configure fail2ban and sshguard
-    services.fail2ban.enable = true;
-    services.sshguard.enable = true;
+    # services.fail2ban.enable = true;
+    # services.sshguard.enable = true;
   };
 }
