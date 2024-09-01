@@ -6,13 +6,13 @@ let
   cloudflared_tunnel_service = "cloudflared-tunnel-${cloudflared_tunnel_id}";
 in {
   age.secrets = {
-    # cf_account_api.file = ../../../secrets/cf_account_api.age;
-    # cf_account_email.file = ../../../secrets/cf_account_email.age;
+    cf_account_api.file = ../../../secrets/cf_account_api.age;
+    cf_account_email.file = ../../../secrets/cf_account_email.age;
     cf_cc_tunnel_credentials.file = ../../../secrets/cf_cc_tunnel_credentials.age;
   };
 
   systemd.services.cloudflared-credentials-setup = {
-    description = "Create Nextcloud admin password file";
+    description = "Create Cloudflared credentials file";
     wantedBy = [ "multi-user.target" ];
     before = [ "${cloudflared_tunnel_service}.service" ];
     serviceConfig = {
@@ -49,23 +49,21 @@ in {
     };
   };
 
-  ## TODO: not sure if this is needed since using cloudflared as a reverse proxy
-  ## cloudflared automatically sets up ssl certificates
-  # security.acme = {
-  #   acceptTerms = true;
-  #   defaults = {
-  #     email = config.cfg.user.email;
-  #     dnsProvider = "cloudflare";
-  #     dnsResolver = "1.1.1.1:53";
-  #     dnsPropagationCheck = true;
-  #     credentialFiles = {
-  #       CF_API_EMAIL_FILE = config.age.secrets.cf_account_email.path;
-  #       CF_API_KEY_FILE = config.age.secrets.cf_account_api.path;
-  #     };
-  #     # Use staging server.
-  #     # server = "https://acme-staging-v02.api.letsencrypt.org/directory";
-  #   };
-  # };
+  security.acme = {
+    acceptTerms = true;
+    defaults = {
+      email = config.cfg.user.email;
+      dnsProvider = "cloudflare";
+      dnsResolver = "1.1.1.1:53";
+      dnsPropagationCheck = true;
+      credentialFiles = {
+        CF_API_EMAIL_FILE = config.age.secrets.cf_account_email.path;
+        CF_API_KEY_FILE = config.age.secrets.cf_account_api.path;
+      };
+      # Use staging server.
+      # server = "https://acme-staging-v02.api.letsencrypt.org/directory";
+    };
+  };
 
   services.nginx = {
     enable = true;

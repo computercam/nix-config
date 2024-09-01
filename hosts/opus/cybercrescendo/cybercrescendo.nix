@@ -1,8 +1,9 @@
 { config, lib, pkgs, options, ... }:
 {
   imports = [
-    ./database.nix
-    ./nextcloud.nix
+    ./docker.nix
+    # ./docker-gitea.nix
+    ./docker-nextcloud.nix
     ./proxy.nix
   ];
 }

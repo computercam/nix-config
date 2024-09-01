@@ -1,6 +1,6 @@
 { config, lib, pkgs, options, ... }: {
   config = {
-    cfg.os.hostname = "homeserver";
+    cfg.os.hostname = "opus";
     
     cfg.networking = {
       domain_name_servers = {

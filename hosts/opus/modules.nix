@@ -30,8 +30,8 @@
     ./modules/filesystems.nix
     ./modules/networking.nix
     ./modules/samba.nix
-    # ./modules/vscode-remote.nix
+    ./modules/vscode-remote.nix
     ./modules/zfs.nix
-    ./cybercrescendo/cybercrescendo.nix
+    # ./cybercrescendo/cybercrescendo.nix
   ];
 }
