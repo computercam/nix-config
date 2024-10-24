@@ -7,9 +7,7 @@
       "1337:1337"
       "7900:7900"
     ];
-    extraOptions = [
-      "--shm-size=2g"
-    ];
+    extraOptions = [ "--shm-size=2g" ];
   };
 }
 

@@ -26,12 +26,14 @@
     # ./modules/docker-pypiserver.nix
     # ./modules/docker-glitchtip.nix
     # ./modules/docker-gpt4free.nix
+    # ./modules/proxy.nix
+    ./modules/cloudflared.nix
     ./modules/docker.nix
     ./modules/filesystems.nix
     ./modules/networking.nix
     ./modules/samba.nix
     ./modules/vscode-remote.nix
     ./modules/zfs.nix
-    # ./cybercrescendo/cybercrescendo.nix
+    ./modules/sanderszone/sanderszone.nix
   ];
 }
