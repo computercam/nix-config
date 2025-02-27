@@ -11,6 +11,12 @@
         fsType = "zfs";
       };
 
+      Archive = {
+        device = "zpool_ARCHIVE";
+        mountPoint = "/Volumes/Archive";
+        fsType = "zfs";
+      };
+
       Server = {
         device = "/dev/disk/by-label/SERVER";
         mountPoint = "/Volumes/Server";
@@ -18,9 +24,9 @@
       };
 
       Storage = {
-        device = "zpool_STORAGE";
+        device = "/dev/disk/by-label/STORAGE";
         mountPoint = "/Volumes/Storage";
-        fsType = "zfs";
+        fsType = "ext4";
       };
 
       TimeMachine = {
