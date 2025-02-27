@@ -5,7 +5,8 @@ in {
   "cf_account_api".publicKeys = [ main ];
   "cf_account_email".publicKeys = [ main ];
   "cf_cc_tunnel_credentials".publicKeys = [ main ];
-  "nextcloud_admin_password".publicKeys = [ main ];
+  "backup_password".publicKeys = [ main ];
+  # "nextcloud_admin_password".publicKeys = [ main ];
   # "glitchtip_key".publicKeys = [ main ];
   # "vscode_hashed_password".publicKeys = [ main ];
 }

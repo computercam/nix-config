@@ -1,95 +1,116 @@
 { config, lib, pkgs, options, ... }: 
 with lib;
-let
-  # remoteBackupUser = "u320463";
-  # remoteBackupHost = "u320463.your-storagebox.de";
-  # remoteBackupPort = "23";
-  # remoteBackupRoot = "ssh://${remoteBackupUser}@${remoteBackupHost}:${remoteBackupPort}/./Backup/BorgBackup";
-  localBackupRoot = "/Volumes/Backup/BorgBackup";
+let 
+  backupBases = [
+    "/Volumes/Archive/Restic"
+    "/Volumes/Backup/Restic"
+  ];
 
-  defaults = {
-    encryption.mode = "repokey";
-    encryption.passCommand = "cat ${config.age.secrets.borgbackup.path}";
-    compression = "auto,lzma";
-    persistentTimer = true;
-    appendFailedSuffix = false;
-    exclude = [ "re:^.*\.sync/" ];
-    # environment.BORG_RSH = ''ssh -i /home/cameron/_unixconf_nix/_/id_rsa.borgbackup'';
-    environment.BORG_RSH = ''ssh -i ${config.users.users."${config.cfg.user.name}".home}/_unixconf_nix/_/id_rsa.borgbackup'';
+  storageBase = "/Volumes/Storage";
+
+  ResticDefaults = {
+    initialize = true;
+    exclude = [ ".sync" ];
+    passwordFile = config.age.secrets.backup_password.path;
   };
-  
-  ServerLocal = mkMerge [ defaults {
-    paths = "/Volumes/Server";
-    repo = "${localBackupRoot}/Server";
-    # preHook = ''
-    #   systemctl list-units --type=service --all \
-    #     | grep docker- \
-    #     | tr -s " " \
-    #     | cut -d" " -f 2  \
-    #     | xargs systemctl stop
-    # '';
-    # postHook = ''
-    #   systemctl list-units --type=service --all \
-    #     | grep docker- \
-    #     | tr -s " " \
-    #     | cut -d" " -f 2  \
-    #     | xargs systemctl restart
-    # '';
-    preHook = ''
-    	systemctl stop docker.socket
-	    systemctl stop docker.service
-    '';
-    postHook = ''
-    	systemctl start docker.socket
-	    systemctl start docker.service
-      systemctl list-units --type=service --all \
-        | grep docker- \
-        | tr -s " " \
-        | cut -d" " -f 2  \
-        | xargs systemctl restart
-    '';
-    startAt = "*-*-* 01:00:00";
-    exclude = mkForce [ "re:^.*docker_storage_root/" ];
-  }];
 
-  RaeLocal = mkMerge [ defaults {
-    paths = "/Volumes/Storage/Rae";
-    repo = "${localBackupRoot}/Rae";
-    startAt = "*-*-* 02:00:00";
-  }];
+  ResticTimerDefaults = {
+    Persistent = true;
+    RandomizedDelaySec = "2h";
+  };
 
-  CameronLocal = mkMerge [ defaults {
-    paths = "/Volumes/Storage/Cameron";
-    repo = "${localBackupRoot}/Cameron";
-    startAt = "*-*-* 03:00:00";
-  }];
+  mkResticBackup = {
+    source,
+    destBase ? backupBases,
+    destSuffix,
+    startTime,
+    defaults ? ResticDefaults,
+    timerDefaults ? ResticTimerDefaults,
+  }: lib.listToAttrs (map (basePath: {
+    # Create name using destSuffix and short hash of the full path
+    name = "${builtins.replaceStrings ["/"] ["-"] destSuffix}-${builtins.substring 0 6 (builtins.hashString "sha256" basePath)}";
+    value = mkMerge [ defaults {
+      paths = [ source ];
+      repository = "${basePath}/${destSuffix}";
+      timerConfig = mkMerge [ timerDefaults {
+        OnCalendar = "*-*-* ${startTime}";
+      }];
+    }];
+  }) destBase);
 
-  # ServerRemote = mkMerge [ ServerLocal {
-  #   repo = mkForce "${remoteBackupRoot}/Server";
-  #   startAt = mkForce "*-*-* 01:30:00";
-  # }];
-
-  # RaeRemote = mkMerge [ RaeLocal {
-  #   repo = mkForce "${remoteBackupRoot}/Rae";
-  #   startAt = mkForce "*-*-* 02:30:00";
-  # }];
-
-  # CameronRemote = mkMerge [ CameronLocal {
-  #   repo = mkForce "${remoteBackupRoot}/Cameron";
-  #   startAt = mkForce "*-*-* 03:30:00";
-  # }];
+  backups = {
+    desktop = {
+      source = "${storageBase}/Cameron/Desktop";
+      destSuffix = "Cameron/Desktop";
+      startTime = "01:00";
+    };
+    documents = {
+      source = "${storageBase}/Cameron/Documents";
+      destSuffix = "Cameron/Documents";
+      startTime = "01:10";
+    };
+    downloads = {
+      source = "${storageBase}/Cameron/Downloads";
+      destSuffix = "Cameron/Downloads";
+      startTime = "01:20";
+    };
+    music = {
+      source = "${storageBase}/Cameron/Music";
+      destSuffix = "Cameron/Music";
+      startTime = "01:30";
+    };
+    pictures = {
+      source = "${storageBase}/Cameron/Pictures";
+      destSuffix = "Cameron/Pictures";
+      startTime = "01:40";
+    };
+    movies = {
+      source = "${storageBase}/Cameron/Movies";
+      destSuffix = "Cameron/Movies";
+      startTime = "01:50";
+    };
+    education = {
+      source = "${storageBase}/Education";
+      destSuffix = "Education";
+      destBase = [ "/Volumes/Archive/Restic" ];
+      startTime = "02:15";
+    };
+    vsts = {
+      source = "${storageBase}/VSTs";
+      destSuffix = "VSTs";
+      destBase = [ "/Volumes/Archive/Restic" ];
+      startTime = "02:30";
+    };
+    rae = {
+      source = "${storageBase}/Rae";
+      destSuffix = "Rae";
+      startTime = "02:45";
+    };
+    server = {
+      source = "/Volumes/Server";
+      destBase = [ "/Volumes/Archive/Restic" ];
+      destSuffix = "Server";
+      startTime = "02:00";
+      defaults = mkMerge [ ResticDefaults {
+        backupPrepareCommand = ''
+          systemctl stop docker.socket
+          systemctl stop docker.service
+          systemctl stop gitea.service
+          systemctl stop resilio.service
+        '';
+        backupCleanupCommand = ''
+          systemctl start docker.socket
+          systemctl start docker.service
+          systemctl start gitea.service
+          systemctl start resilio.service
+        '';
+      }];
+    };
+  };
 
 in {
   config = {
-    age.identityPaths = [ "${config.users.users."${config.cfg.user.name}".home}/_unixconf_nix/_/id_rsa.borgbackup" ];
-    age.secrets.borgbackup.file = ../../../secrets/borgbackup.age;
-
-    services.borgbackup = {
-      jobs = {
-        CameronLocal = CameronLocal;
-        RaeLocal = RaeLocal;
-        ServerLocal = ServerLocal;
-      };
-    };
+    age.secrets.backup_password.file = ../../../secrets/backup_password.age;
+    services.restic.backups = mkMerge (map mkResticBackup (builtins.attrValues backups));
   };
 }
