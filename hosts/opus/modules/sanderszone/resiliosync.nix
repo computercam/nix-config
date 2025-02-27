@@ -8,12 +8,14 @@ in {
     enable = true;
     enableWebUI = true;
     storagePath = resilio_dir;
+    deviceName = config.cfg.os.hostname;
     httpListenAddr = "0.0.0.0";
     httpListenPort = resilio_web_port;
     directoryRoot = "/Volumes/Storage";
   };
   
   users.users."${config.cfg.user.name}".extraGroups = [ "rslsync" ];
+  users.users.rslsync.extraGroups = [ "sharedfiles" ];
 
   networking.firewall.allowedTCPPorts = [ resilio_web_port ];
   # virtualisation.oci-containers.containers = {
