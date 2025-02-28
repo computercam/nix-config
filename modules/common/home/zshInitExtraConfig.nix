@@ -43,7 +43,7 @@ with lib;
     vi = ''${pkgs.neovim}/bin/nvim'';
     vim = ''${pkgs.neovim}/bin/nvim'';
     rebuild = (if config.cfg.os.name == "nixos" 
-      then "nixos rebuild switch"
+      then "sudo nixos-rebuild switch"
       else if config.cfg.os.name == "macos"
       then "nix --show-trace --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake $HOME/_unixconf_nix/flake.nix"
       else "echo");
