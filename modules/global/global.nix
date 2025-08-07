@@ -32,6 +32,7 @@ with lib;
       group = config.cfg.user.name;
       home = "/home/${config.cfg.user.name}";
       isNormalUser = true;
+      uid = 6969;
     } else {})
     ( if config.cfg.os.name == "macos" then {
       home = "/Users/${config.cfg.user.name}";
@@ -44,7 +45,8 @@ with lib;
 
   users.groups."${config.cfg.user.name}" = (mkMerge [
     (if config.cfg.os.name == "nixos" then { 
-      name = config.cfg.user.name; 
+      name = config.cfg.user.name;
+      gid = 6969;
     } else {})
     (if config.cfg.os.name == "macos" then { 
       name = "staff"; 
