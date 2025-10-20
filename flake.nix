@@ -9,9 +9,19 @@
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
     nix-darwin.url = "github:LnL7/nix-darwin";
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    stylix.inputs.nixpkgs.follows = "nixpkgs";
+    stylix.url = "github:nix-community/stylix";
   };
 
-  outputs = { self, nixpkgs, nix-darwin, agenix, home-manager, ... }@inputs: 
+  outputs = { 
+    self, 
+    agenix, 
+    home-manager, 
+    nix-darwin,
+    stylix, 
+    nixpkgs,
+    ... 
+  }@inputs: 
   let 
     globalModules = [ 
       { 
@@ -23,11 +33,13 @@
       ./modules/global/nixos.nix
       home-manager.nixosModules.default
       agenix.nixosModules.default
+      stylix.nixosModules.stylix
     ];
     globalModulesMacos = globalModules ++ [ 
       ./modules/global/macos.nix
       home-manager.darwinModules.default
       agenix.darwinModules.default
+      stylix.darwinModules.stylix
     ];
   in
   {
