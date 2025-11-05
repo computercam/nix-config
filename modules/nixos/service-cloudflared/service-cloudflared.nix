@@ -9,57 +9,53 @@ let
   apiPath = cloudflaredConfig.apiPath;
   emailAgePath = cloudflaredConfig.emailAgePath;
   emailPath = cloudflaredConfig.emailPath;
+  curl = "${pkgs.curl}/bin/curl";
+  jq = "${pkgs.jq}/bin/jq";
+  gawk = "${pkgs.gawk}/bin/awk";
+  bash = "${pkgs.bash}/bin/bash";
+  ping = "${pkgs.iputils}/bin/ping";
 
-  createCloudflaredHome = pkgs.substituteAll {
-    src = ./scripts/create-cloudflared-home.sh;
-    isExecutable = true;
+  createCloudflaredHome = pkgs.replaceVars ./scripts/create-cloudflared-home.sh {
     homeDir = homeDir;
     user = user;
   };
 
-  fetchOrCreateTunnel = pkgs.substituteAll {
-    src = ./scripts/fetch-or-create-tunnel.sh;
-    isExecutable = true;
+  fetchOrCreateTunnel = pkgs.replaceVars ./scripts/fetch-or-create-tunnel.sh {
     tunnelName = tunnelName;
     homeDir = homeDir; 
     user = user;
     accountIdPath = accountIdPath;
     emailPath = emailPath;
     apiPath = apiPath;
-    curl = "${pkgs.curl}/bin/curl";
-    jq = "${pkgs.jq}/bin/jq";
-    bash = "${pkgs.bash}/bin/bash";
-    ping = "${pkgs.iputils}/bin/ping";
+    curl = curl;
+    jq = jq;
+    bash = bash;
+    ping = ping;
   };
 
-  fetchOriginCert = subdomain: pkgs.substituteAll {
-    src = ./scripts/fetch-origin-cert.sh;
-    isExecutable = true;
+  fetchOriginCert = subdomain: pkgs.replaceVars ./scripts/fetch-origin-cert.sh {
     subdomain = subdomain;
     homeDir = homeDir;
-    accountIdPath = accountIdPath;
     emailPath = emailPath;
     apiPath = apiPath;
-    curl = "${pkgs.curl}/bin/curl";
-    jq = "${pkgs.jq}/bin/jq";
-    bash = "${pkgs.bash}/bin/bash";
-    ping = "${pkgs.iputils}/bin/ping";
+    curl = curl;
+    jq = jq;
+    bash = bash;
+    ping = ping;
   };
 
-  cloudflareUpdateDNSScript = pkgs.substituteAll {
-    src = ./scripts/update-dns.sh;
-    isExecutable = true;
+  cloudflareUpdateDNSScript = pkgs.replaceVars ./scripts/update-dns.sh {
     tunnelName = tunnelName;
     homeDir = homeDir;
     accountIdPath = accountIdPath;
     emailPath = emailPath;
     apiPath = apiPath;
     ingress_domains = lib.concatStringsSep " " (builtins.attrNames config.services.cloudflared.tunnels.${tunnelName}.ingress);
-    curl = "${pkgs.curl}/bin/curl";
-    jq = "${pkgs.jq}/bin/jq";
-    gawk = "${pkgs.gawk}/bin/awk";
-    bash = "${pkgs.bash}/bin/bash";
-    ping = "${pkgs.iputils}/bin/ping";
+    curl = curl;
+    jq = jq;
+    gawk = gawk;
+    bash = bash;
+    ping = ping;
   };
 
   createExecStartScript = let
@@ -94,14 +90,12 @@ let
     };
 
     mkConfigFile = pkgs.writeText "cloudflared.yml" (builtins.toJSON fullConfig);
-  in pkgs.substituteAll {
-    src = ./scripts/create-cloudflare-start-script.sh;
-    isExecutable = true;
+  in pkgs.replaceVars ./scripts/create-cloudflare-start-script.sh {
     tunnelName = tunnelName;
     homeDir = homeDir;
     user = user;
     cloudflared_package = config.services.cloudflared.package;
-    jq = "${pkgs.jq}/bin/jq";
+    jq = jq;
     config_file = mkConfigFile;
   };
 
@@ -119,11 +113,11 @@ in {
     description = "Create or update Cloudflare tunnel ${tunnelName}";
     wantedBy = [ "multi-user.target" ];
     after = [ "network-online.target" ];
-    # requires = [ "network-online.target" ];
+    requires = [ "network-online.target" ];
     script = ''
-      ${createCloudflaredHome}
-      ${fetchOrCreateTunnel}
-      ${createExecStartScript}
+      ${bash} ${createCloudflaredHome}
+      ${bash} ${fetchOrCreateTunnel}
+      ${bash} ${createExecStartScript}
     '';
     serviceConfig.Type = "oneshot";
     serviceConfig.RemainAfterExit = true;
@@ -133,9 +127,9 @@ in {
     description = "Fetch Origin CA certificates for Cloudflare tunnel ${tunnelName} domains";
     wantedBy = [ "multi-user.target" ];
     after = [ "network-online.target" ];
-    # requires = [ "network-online.target" ];
+    requires = [ "network-online.target" ];
     script = ''
-      ${cloudflareOriginCertsScript}
+      ${bash} ${cloudflareOriginCertsScript}
     '';
     serviceConfig.Type = "oneshot";
     serviceConfig.RemainAfterExit = true;
@@ -145,9 +139,9 @@ in {
     description = "Update DNS records for cloudflare tunnel ${tunnelName} domains";
     wantedBy = [ "multi-user.target" ];
     after = [ "network-online.target" "cloudflared-tunnel-${tunnelName}.service" ];
-    # requires = [ "network-online.target" ];
+    requires = [ "network-online.target" ];
     script = ''
-      ${cloudflareUpdateDNSScript}
+      ${bash} ${cloudflareUpdateDNSScript}
     '';
     serviceConfig.Type = "oneshot";
     serviceConfig.RemainAfterExit = true;
