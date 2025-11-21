@@ -23,16 +23,16 @@ with lib; {
         description = "Enable Static Networking";
       };
 
+      managed = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Allow NetworkManager to manage static networking through profiles.";
+      };
+
       default_gateway = mkOption {
         type = types.str;
         default = "192.168.0.1";
         description = "Static Networking Default Gateway";
-      };
-
-      ip_address = mkOption {
-        type = types.str;
-        default = "192.168.0.10";
-        description = "Static Networking IP Address";
       };
 
       prefix_length = mkOption {
@@ -41,10 +41,23 @@ with lib; {
         description = "Static Networking Subnet Mask";
       };
 
-      interface = mkOption {
-        type = types.str;
-        default = "enp3s0";
-        description = "Static Networking Network Interface";
+      interfaces = lib.mkOption {
+        type = lib.types.listOf (lib.types.submodule {
+          options = {
+            name = lib.mkOption {
+              type = lib.types.str;
+              description = "Interface name (e.g. \"eth0\").";
+            };
+            address = lib.mkOption {
+              type = lib.types.str;
+              description = "IPv4 address for this interface.";
+            };
+          };
+        });
+        default = [ ];
+        description = ''
+          List of static network interfaces, each with its own interface name and IPv4 address.
+        '';
       };
     };
   };
