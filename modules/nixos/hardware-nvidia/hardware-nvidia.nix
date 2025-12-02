@@ -3,6 +3,9 @@ let
   nvidiaPackage = config.boot.kernelPackages.nvidiaPackages.stable;
 in {
   config = {
+    environment.systemPackages = with pkgs; [
+      nvtopPackages.nvidia
+    ];
     hardware.graphics.enable = true;
     hardware.opengl.driSupport32Bit = true;
     
