@@ -44,10 +44,10 @@
   in
   {
     nixosConfigurations = {
-      cryoxphere = nixpkgs.lib.nixosSystem {
+      neurowarp = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = globalModulesNixos
-          ++ [ ./hosts/cryoxphere/configuration.nix ];
+          ++ [ ./hosts/neurowarp/configuration.nix ];
       };
       opus = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
