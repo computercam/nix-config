@@ -49,10 +49,10 @@
         modules = globalModulesNixos
           ++ [ ./hosts/neurowarp/configuration.nix ];
       };
-      opus = nixpkgs.lib.nixosSystem {
+      ultracore = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = globalModulesNixos
-          ++ [ ./hosts/opus/configuration.nix ];
+          ++ [ ./hosts/ultracore/configuration.nix ];
       };
     };
     darwinConfigurations = {
