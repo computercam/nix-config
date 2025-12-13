@@ -101,7 +101,7 @@ let
 
   ingressDomains = builtins.attrNames config.services.cloudflared.tunnels.${tunnelName}.ingress;
   
-  cloudflareOriginCertsScript = builtins.concatStringsSep "\n" (map fetchOriginCert ingressDomains);
+  cloudflareOriginCertsScript = builtins.concatStringsSep "\n${bash} " (map fetchOriginCert ingressDomains);
 in {
   age.secrets = {
     cf_account_id.file = accountIdAgePath;
