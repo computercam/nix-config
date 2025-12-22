@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }: 
+{ config, lib, pkgs, ... }:
 with pkgs.stdenv;
 with lib; {
   options.cfg.os = {
@@ -82,6 +82,18 @@ with lib; {
       type = types.str;
       default = "user@example.com";
       description = "Email for the main user on the system";
+    };
+  };
+  options.cfg.shareduser = {
+    name = mkOption {
+      type = types.str;
+      default = "shared";
+      description = "Username for the shared files user on the system";
+    };
+    group = mkOption {
+      type = types.str;
+      default = "shared";
+      description = "Group for the shared files user on the system";
     };
   };
 }

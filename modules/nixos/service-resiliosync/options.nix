@@ -1,16 +1,23 @@
-{ config, lib, pkgs, options, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  options,
+  ...
+}:
 with pkgs.stdenv;
-with lib; {
+with lib;
+{
   options.cfg.resiliosync = {
     user = mkOption {
       type = types.str;
       default = "rslsync";
       description = "The user resilio sync should run as.";
     };
-    resilioPublicDomain = mkOption {
+    deviceName = mkOption {
       type = types.str;
       default = "resilio.${config.cfg.os.hostname}.local";
-      description = "The public domain name for Resilio Sync.";
+      description = "The domain name for Resilio Sync.";
     };
     storagePath = mkOption {
       type = types.str;
