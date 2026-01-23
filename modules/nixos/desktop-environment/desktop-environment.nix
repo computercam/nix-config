@@ -12,7 +12,7 @@
     services.xserver = {
       enable = true;
       dpi = 96;
-      layout = "us";
+      xkb.layout = "us";
     };
   };
 }

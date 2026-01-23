@@ -1,4 +1,11 @@
-{ config, lib, pkgs, options, ... }: {
+{
+  config,
+  lib,
+  pkgs,
+  options,
+  ...
+}:
+{
   config = {
     environment.systemPackages = with pkgs; [
       # lutris
@@ -10,25 +17,19 @@
       wine-staging
     ];
 
-    programs.steam = {  
-      enable = true;  
-      remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play  
+    programs.steam = {
+      enable = true;
+      remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
       dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
       extraCompatPackages = [ pkgs.proton-ge-bin ];
     };
 
+    services.pulseaudio.support32Bit = true;
+
     hardware = {
-      ## 32 bit support for Lutris
-      # enableRedistributableFirmware = true;
-      # pulseaudio.support32Bit = true;
-
-      # opengl = {
-      #   enable = true;
-      #   driSupport = true;
-      #   driSupport32Bit = true;
-      # };
-
-      # Support for gaming peripherals
+      enableRedistributableFirmware = true;
+      graphics.enable = true;
+      graphics.enable32Bit = true;
       steam-hardware.enable = true;
     };
 

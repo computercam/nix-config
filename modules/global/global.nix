@@ -21,6 +21,7 @@ with lib;
     vim
     age
     nil
+    nixd
   ];
   environment.variables.LANG = config.cfg.localization.lang;
   networking.hostName = config.cfg.os.hostname;
