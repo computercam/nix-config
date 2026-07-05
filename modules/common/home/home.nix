@@ -21,6 +21,7 @@ let
   };
 in
 {
+  home-manager.backupCommand = "${pkgs.trash-cli}/bin/trash";
   home-manager.users."${config.cfg.user.name}" = {
     home.stateVersion = config.cfg.os.version;
 
@@ -60,7 +61,7 @@ in
         eza # shell
         zoxide # shell
 
-        neofetch # system info
+        fastfetch # system info
         lsof # system info
         htop # system info _ rust alt - ps # https://github.com/dalance/procs
 
