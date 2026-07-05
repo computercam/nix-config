@@ -81,7 +81,7 @@ with lib;
     fullname = mkOption {
       type = types.str;
       default = "User";
-      description = "Username for the main user on the system";
+      description = "Full name for the main user on the system";
     };
 
     email = mkOption {

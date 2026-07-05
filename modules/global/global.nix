@@ -7,14 +7,7 @@
 with lib;
 {
   imports = [ ./options.nix ];
-  # TODO: probably a better way of referencing this.
-  # this is a string path to a private key used to decrypt agenix secrets
-  # i can't commit this private key and don't want to put private key in the nix store
-  # so this is the workaround for now
-  # nix.package = pkgs.nixUnstable; # Flakes will automatically use the latest version of nixpkgs
-  age.identityPaths = [
-    "${config.users.users."${config.cfg.user.name}".home}/REPO/_/id_rsa"
-  ];
+
   environment.systemPackages = with pkgs; [
     nixfmt
     git

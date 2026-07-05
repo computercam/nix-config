@@ -5,8 +5,8 @@
 {
   config = {
     environment.systemPackages = with pkgs; [
-      xorg.xkill
-      xorg.xrandr
+      xkill
+      xrandr
     ];
 
     services.xserver = {

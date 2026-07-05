@@ -15,50 +15,28 @@
 
   outputs =
     {
-      self,
       agenix,
       home-manager,
       nix-darwin,
       stylix,
-      nixpkgs,
       ...
-    }@inputs:
-    let
-      globalModules = [
-        {
-          system.configurationRevision = self.rev or self.dirtyRev or null;
-        }
+    }:
+    {
+      nixosPresets.global = [
         ./modules/global/global.nix
-      ];
-      globalModulesNixos = globalModules ++ [
         ./modules/global/nixos.nix
         home-manager.nixosModules.default
         agenix.nixosModules.default
         stylix.nixosModules.stylix
       ];
-      globalModulesMacos = globalModules ++ [
+
+      darwinPresets.global = [
+        ./modules/global/global.nix
         ./modules/global/macos.nix
         home-manager.darwinModules.default
         agenix.darwinModules.default
         stylix.darwinModules.stylix
       ];
-    in
-    {
-      nixosConfigurations = {
-        neurowarp = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          modules = globalModulesNixos ++ [ ./hosts/neurowarp/configuration.nix ];
-        };
-        ultracore = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          modules = globalModulesNixos ++ [ ./hosts/ultracore/configuration.nix ];
-        };
-      };
-      darwinConfigurations = {
-        forte = nix-darwin.lib.darwinSystem {
-          system = "aarch64-darwin";
-          modules = globalModulesMacos ++ [ ./hosts/forte/configuration.nix ];
-        };
-      };
     };
 }
+````
