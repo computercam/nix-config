@@ -55,10 +55,6 @@
         };
       };
       darwinConfigurations = {
-        hackinfrost = nix-darwin.lib.darwinSystem {
-          system = "x86_64-darwin";
-          modules = globalModulesMacos ++ [ ./hosts/hackinfrost/configuration.nix ];
-        };
         forte = nix-darwin.lib.darwinSystem {
           system = "aarch64-darwin";
           modules = globalModulesMacos ++ [ ./hosts/forte/configuration.nix ];
