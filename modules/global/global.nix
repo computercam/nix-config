@@ -44,7 +44,7 @@ with lib;
             group = config.cfg.user.name;
             home = "/home/${config.cfg.user.name}";
             isNormalUser = true;
-            uid = 1000;
+            autoSubUidGidRange = true;
           }
         else
           { }
@@ -70,7 +70,6 @@ with lib;
         if config.cfg.os.name == "nixos" then
           {
             name = config.cfg.user.name;
-            gid = 1000;
           }
         else
           { }
