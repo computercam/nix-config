@@ -18,21 +18,13 @@ flowchart LR
     F["flake.nix"] --> NP["nixosPresets.global"]
     F --> DP["darwinPresets.global"]
 
-    subgraph Mods["modules/"]
-      G["global/"]
-      C["common/"]
-      N["nixos/"]
-      MC["macos/"]
-    end
-
-    NP --> G
-    DP --> G
+    M["modules/<br/>global · common · nixos · macos"]
   end
 
+  NP --> M
+  DP --> M
   PF -->|"inputs.nix-config"| F
-  H -.->|"${nix-config}/modules/..."| C
-  H -.-> N
-  H -.-> MC
+  H -.->|"${nix-config}/modules/..."| M
 ```
 
 ### Why split repos?
