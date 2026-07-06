@@ -9,26 +9,18 @@ This repository is the **public** half of a two-repo architecture. It exports re
 ```mermaid
 graph TD
   subgraph Private["🔒 Private repo — hosts, secrets, profiles"]
-    PF["flake.nix"]
-    P["profiles/ — overrides cfg.* defaults"]
-    H["hosts/ — per-machine configs"]
-    SE["secrets/ & SSH key"]
+    direction LR
+    PF["flake.nix"] --> P["profiles/"]
+    PF --> H["hosts/"]
+    PF --> SE["secrets/ & SSH key"]
   end
 
   subgraph Public["🌐 Public repo — modules & presets (this repo)"]
-    F["flake.nix"]
-    NP["nixosPresets.global"]
-    DP["darwinPresets.global"]
-    M["modules/"]
+    direction LR
+    F["flake.nix"] --> NP["nixosPresets.global"] --> M["modules/"]
+    F --> DP["darwinPresets.global"] --> M
   end
 
-  PF --> P
-  PF --> H
-  PF --> SE
-  F --> NP
-  F --> DP
-  NP --> M
-  DP --> M
   PF -->|"inputs.nix-config"| F
 ```
 
