@@ -8,25 +8,26 @@ This repository is the **public** half of a two-repo architecture. It exports re
 
 ```mermaid
 graph TD
-  subgraph Private["🔒 _nix-private"]
-    PF["flake.nix"] --> P["profiles/personal.nix"]
-    PF --> H["hosts/"]
-    PF --> SE["secrets/ & _/ SSH key"]
-    H --> NW["neurowarp"] & UC["ultracore"] & FT["forte"]
+  subgraph Private["🔒 Private repo — hosts, secrets, profiles"]
+    direction TB
+    PF["flake.nix"]
+    P["profiles/ — overrides cfg.* defaults"]
+    H["hosts/ — per-machine configs"]
+    SE["secrets/ & SSH key"]
+    PF --> P & H & SE
   end
 
-  subgraph Public["🌐 _unixconf_nix"]
-    F["flake.nix"] --> NP["nixosPresets.global"]
-    F --> DP["darwinPresets.global"]
-    NP & DP --> M["modules/"]
-    M --> G["global/"] & C["common/"] & N["nixos/"] & MC["macos/"]
+  subgraph Public["🌐 Public repo — modules & presets (this repo)"]
+    direction TB
+    F["flake.nix"]
+    NP["nixosPresets.global"]
+    DP["darwinPresets.global"]
+    M["modules/"]
+    F --> NP & DP
+    NP & DP --> M
   end
 
   Private -->|"inputs.nix-config"| Public
-  P -->|"overrides cfg.*"| NP
-  H -->|"imports presets"| NP
-  H -->|"imports presets"| DP
-  H -->|"${nix-config}/modules/..."| M
 ```
 
 ### Why split repos?
