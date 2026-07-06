@@ -87,132 +87,87 @@ A private repo consumes these presets:
 
 Module paths are referenced via `${nix-config}/modules/...` interpolation, which works because `nix-config` is passed through `specialArgs`.
 
-## Module System
+## Modules
 
-All modules live under `modules/` and are organized by platform:
+All modules live under `modules/`, organized by platform:
 
 ```
 modules/
-├── global/          # Shared between all platforms
-│   ├── global.nix   # Core system config (packages, user, timezone, etc.)
-│   ├── options.nix  # Global option declarations (cfg.os, cfg.user, cfg.localization, etc.)
-│   ├── nixos.nix   # NixOS-specific defaults (boot, i18n, stateVersion)
-│   └── macos.nix   # macOS-specific defaults (stateVersion, primaryUser)
-├── common/          # Shared modules (work on both platforms)
-│   ├── fonts/       # Font configuration
-│   └── home/        # Home-manager config, dotfiles, zsh
-├── nixos/           # NixOS-only modules
-│   ├── service-*/   # System services (docker, ssh, avahi, etc.)
-│   ├── hardware-*/  # Hardware drivers (nvidia)
-│   ├── desktop-*/   # Desktop environments (plasma, gnome, xfce)
-│   ├── display-*/   # Display managers (gdm, sddm, lightdm)
-│   └── software-*/  # Software bundles (gaming, obs)
-└── macos/           # macOS-only modules
-    ├── service-homebrew/
-    ├── service-yabai/
-    └── system-defaults/
+├── global/    # Core system config, options, and platform defaults
+├── common/    # Cross-platform modules (home-manager, fonts)
+├── nixos/     # Linux-only modules (services, desktops, hardware, software)
+└── macos/     # macOS-only modules (homebrew, yabai, system defaults)
 ```
+
+**`global/`** — Core system setup: packages, user creation, zsh, timezone, nix settings, and the `cfg.*` option declarations that the rest of the modules depend on. Included in both presets.
+
+**`common/`** — Home-manager config (git, zsh, shell utilities), dotfiles, and font packages. Works on both NixOS and macOS. Imported directly by hosts via `${nix-config}/modules/common/...`.
+
+**`nixos/`** — Linux-only modules, grouped by prefix:
+- **`service-*`** — system services (ssh, docker, networking, avahi, tailscale, etc.)
+- **`desktop-environment-*`** — desktop environments (plasma, gnome, xfce)
+- **`display-manager-*`** — login managers (gdm, sddm, lightdm)
+- **`hardware-*`** — hardware drivers (nvidia)
+- **`software-*`** — software bundles (gaming, obs)
+
+**`macos/`** — Homebrew package management, yabai tiling window manager, and macOS system defaults.
 
 ### Module Patterns
 
-Modules in this repo follow three patterns:
+Modules follow three patterns:
 
-#### Pattern A — Flat module
-
-Simple modules with no configurable options. The file directly sets configuration values.
+**Pattern A — Flat**: no options, directly sets config values. Used for simple enable-and-configure modules.
 
 ```nix
 # modules/nixos/service-avahi/service-avahi.nix
 { ... }:
 {
-  services.avahi = {
-    enable = true;
-    nssmdns4 = true;
-    openFirewall = true;
-  };
+  services.avahi = { enable = true; nssmdns4 = true; openFirewall = true; };
 }
 ```
 
-#### Pattern B — Options + Config
-
-Modules that expose configurable options under `cfg.*`, then use those options in the `config` block. Options live in a sibling `options.nix`.
+**Pattern B — Options + Config**: exposes `cfg.*` options in a sibling `options.nix`, then reads them in `config`. Host configs can override defaults.
 
 ```nix
 # modules/nixos/service-ssh/options.nix
-{ config, lib, ... }:
+{ lib, ... }:
 with lib;
 {
-  options.cfg.ssh = {
-    port = mkOption {
-      type = types.int;
-      default = 22;
-      description = "SSH Port";
-    };
-  };
+  options.cfg.ssh.port = mkOption { type = types.int; default = 22; };
 }
 
 # modules/nixos/service-ssh/service-ssh.nix
-{ config, lib, pkgs, ... }:
-with lib;
-{
-  imports = [ ./options.nix ];
-  config = {
-    services.openssh = {
-      enable = true;
-      ports = [ config.cfg.ssh.port ];
-      # ...
-    };
-  };
-}
-```
+{ config, ... }:
+{ imports = [ ./options.nix ]; config.services.openssh.ports = [ config.cfg.ssh.port ]; }
 
-This pattern lets host configs override defaults:
-
-```nix
-# In a host configuration:
+# Override in a host config:
 { cfg.ssh.port = 2222; }
 ```
 
-#### Pattern C — Functional import
-
-Modules that need external data (like secret file paths) injected at call time. The module file is a function returning a NixOS module:
+**Pattern C — Functional import**: module is a function taking external data (like secret paths), returning a NixOS module. Used for modules that need secret injection.
 
 ```nix
 # modules/nixos/service-tailscale/service-tailscale.nix
 { tsConfig, ... }:
-let
-  tsAuthKeyPath = tsConfig.tsAuthKeyPath;
-in
 {
-  config = {
-    age.secrets.ts_auth_key.file = tsAuthKeyAgePath;
-    services.tailscale.enable = true;
-    # ...
-  };
+  config.age.secrets.ts_auth_key.file = tsConfig.tsAuthKeyAgePath;
+  config.services.tailscale.enable = true;
 }
-```
 
-Imported by the host with arguments:
-
-```nix
-imports = [
-  (import "${nix-config}/modules/nixos/service-tailscale/service-tailscale.nix" {
-    tsConfig = {
-      tsAuthKeyPath = config.age.secrets.ts_auth_key.path;
-      tsAuthKeyAgePath = ./secrets/ts_auth_key.age;
-    };
-  });
-];
+# Imported by the host with arguments:
+(import "${nix-config}/modules/nixos/service-tailscale/service-tailscale.nix" {
+  tsConfig = { tsAuthKeyPath = config.age.secrets.ts_auth_key.path; tsAuthKeyAgePath = ./secrets/ts_auth_key.age; };
+})
 ```
 
 ### Global Options
 
-The `modules/global/options.nix` file defines shared options with generic defaults. The private repo's profile overrides these with real values.
+`modules/global/options.nix` defines shared options with generic defaults. The private repo's profile overrides these with real values.
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `cfg.os.name` | `"nixos"` | Operating system name (`"nixos"` or `"macos"`) |
-| `cfg.os.version` | `"latest"` | OS version (maps to `system.stateVersion`) |
+| `cfg.os.name` | `"nixos"` | OS name (`"nixos"` or `"macos"`) |
+| `cfg.os.version` | `"latest"` | OS version (→ `system.stateVersion`) |
 | `cfg.os.hostname` | `cfg.os.name` | System hostname |
 | `cfg.user.name` | `"user"` | Primary username |
 | `cfg.user.fullname` | `"User"` | Primary user's full name |
@@ -221,39 +176,13 @@ The `modules/global/options.nix` file defines shared options with generic defaul
 | `cfg.shareduser.group` | `"shared"` | Shared files group |
 | `cfg.localization.lang` | `"en_US.UTF-8"` | System language |
 | `cfg.localization.timezone` | `"UTC"` | System timezone |
-| `cfg.localization.latitude` | `0.0` | Location latitude (for redshift/stylix) |
+| `cfg.localization.latitude` | `0.0` | Location latitude |
 | `cfg.localization.longitude` | `0.0` | Location longitude |
 | `cfg.localization.keymap` | `"us"` | Console keymap |
 | `cfg.localization.measurement` | `"Metric"` | Measurement units |
 | `cfg.localization.temperature` | `"Celsius"` | Temperature units |
 
 Module-specific options (like `cfg.ssh.port`, `cfg.docker.*`, `cfg.networking.*`) are defined in their respective `options.nix` files.
-
-## Module Reference
-
-Modules are organized by platform under `modules/`. Browse the directory for the full list — it changes frequently. What's here is the shape of it:
-
-### `global/` — shared between all platforms
-
-Core system setup: packages, user creation, zsh, timezone, nix settings, and the `cfg.*` option declarations that the rest of the modules depend on.
-
-### `common/` — cross-platform
-
-Home-manager config (git, zsh, shell utilities), dotfiles, and font packages. Works on both NixOS and macOS.
-
-### `nixos/` — Linux-only
-
-Grouped by category, each following one of the three module patterns described above:
-
-- **`service-*`** — system services (ssh, docker, networking, avahi, tailscale, cloudflared, samba, printing, etc.)
-- **`desktop-environment-*`** — desktop environments (plasma, gnome, xfce)
-- **`display-manager-*`** — login managers (gdm, sddm, lightdm)
-- **`hardware-*`** — hardware drivers (nvidia)
-- **`software-*`** — software bundles (gaming, obs)
-
-### `macos/` — macOS-only
-
-Homebrew package management, yabai tiling window manager, and macOS system defaults.
 
 ## Setup
 
