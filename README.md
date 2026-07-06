@@ -6,26 +6,26 @@ This repository is the **public** half of a two-repo architecture. It exports re
 
 ## Architecture
 
+**🔒 Private repo** — hosts, secrets, profiles
+
 ```mermaid
 flowchart LR
-  subgraph Private["🔒 Private repo — hosts, secrets, profiles"]
-    PF["flake.nix<br/>entry point"] --> P["profiles/<br/>override defaults"]
-    PF --> H["hosts/<br/>per-machine configs"]
-    PF --> SE["secrets/ & SSH key<br/>agenix vault & decryptor"]
-  end
-
-  subgraph Public["🌐 Public repo — modules & presets (this repo)"]
-    F["flake.nix<br/>exports presets"] --> NP["nixosPresets.global<br/>NixOS base modules"]
-    F --> DP["darwinPresets.global<br/>macOS base modules"]
-
-    M["modules/<br/>global · common · nixos · macos<br/>reusable module library"]
-  end
-
-  NP --> M
-  DP --> M
-  PF -->|"inputs.nix-config"| F
-  H -.->|"${nix-config}/modules/..."| M
+  PF["flake.nix<br/>entry point"] --> P["profiles/<br/>override defaults"]
+  PF --> H["hosts/<br/>per-machine configs"]
+  PF --> SE["secrets/ & SSH key<br/>agenix vault & decryptor"]
 ```
+
+**🌐 Public repo** — modules & presets *(this repo)*
+
+```mermaid
+flowchart LR
+  F["flake.nix<br/>exports presets"] --> NP["nixosPresets.global<br/>NixOS base modules"]
+  F --> DP["darwinPresets.global<br/>macOS base modules"]
+  NP --> M["modules/<br/>global · common · nixos · macos<br/>reusable module library"]
+  DP --> M
+```
+
+The private repo connects to this public repo in two ways: its `flake.nix` declares `inputs.nix-config.url` pointing here, and host configs reference individual modules via `${nix-config}/modules/...` interpolation.
 
 ### Why split repos?
 
