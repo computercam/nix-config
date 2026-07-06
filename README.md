@@ -7,16 +7,14 @@ This repository is the **public** half of a two-repo architecture. It exports re
 ## Architecture
 
 ```mermaid
-graph TD
+flowchart LR
   subgraph Private["🔒 Private repo — hosts, secrets, profiles"]
-    direction LR
     PF["flake.nix"] --> P["profiles/"]
     PF --> H["hosts/"]
     PF --> SE["secrets/ & SSH key"]
   end
 
   subgraph Public["🌐 Public repo — modules & presets (this repo)"]
-    direction LR
     F["flake.nix"] --> NP["nixosPresets.global"] --> M["modules/"]
     F --> DP["darwinPresets.global"] --> M
   end
