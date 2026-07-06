@@ -15,8 +15,14 @@ flowchart LR
   end
 
   subgraph Public["🌐 Public repo — modules & presets (this repo)"]
-    F["flake.nix"] --> NP["nixosPresets.global"] --> M["modules/"]
-    F --> DP["darwinPresets.global"] --> M
+    F["flake.nix"] --> NP["nixosPresets.global"]
+    F --> DP["darwinPresets.global"]
+    NP --> G["global/"]
+    NP --> N["nixos/"]
+    NP -.-> C["common/"]
+    DP --> G
+    DP --> MC["macos/"]
+    DP -.-> C
   end
 
   PF -->|"inputs.nix-config"| F
