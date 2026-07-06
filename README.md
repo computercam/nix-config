@@ -17,15 +17,22 @@ flowchart LR
   subgraph Public["🌐 Public repo — modules & presets (this repo)"]
     F["flake.nix"] --> NP["nixosPresets.global"]
     F --> DP["darwinPresets.global"]
-    NP --> G["global/"]
-    NP --> N["nixos/"]
-    NP -.-> C["common/"]
+
+    subgraph Mods["modules/"]
+      G["global/"]
+      C["common/"]
+      N["nixos/"]
+      MC["macos/"]
+    end
+
+    NP --> G
     DP --> G
-    DP --> MC["macos/"]
-    DP -.-> C
   end
 
   PF -->|"inputs.nix-config"| F
+  H -.->|"${nix-config}/modules/..."| C
+  H -.-> N
+  H -.-> MC
 ```
 
 ### Why split repos?
