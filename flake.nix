@@ -21,6 +21,24 @@
       stylix,
       ...
     }:
+    let
+      # Auto-discover modules from a directory.
+      # Convention: each module is a subdirectory {name}/{name}.nix
+      # Sibling files (options.nix, helpers, etc.) are imported by the main module.
+      discoverModules =
+        dir:
+        builtins.listToAttrs (
+          builtins.filter (x: x != null) (
+            builtins.map (name: (
+              let moduleFile = dir + "/${name}/${name}.nix"; in
+              if builtins.pathExists moduleFile then
+                { inherit name; value = moduleFile; }
+              else
+                null
+            )) (builtins.attrNames (builtins.readDir dir))
+          )
+        );
+    in
     {
       nixosPresets.global = [
         ./modules/global/global.nix
@@ -37,6 +55,18 @@
         agenix.darwinModules.default
         stylix.darwinModules.stylix
       ];
+
+      # Individual modules — auto-discovered from directory convention:
+      #   modules/nixos/{name}/{name}.nix  →  nixosModules.{name}
+      #   modules/macos/{name}/{name}.nix  →  darwinModules.{name}
+      # Manually listed for common/ since it has a flat structure.
+      nixosModules = discoverModules ./modules/nixos;
+      darwinModules = discoverModules ./modules/macos;
+
+      commonModules = {
+        home = ./modules/common/home/home.nix;
+        dotfiles = ./modules/common/home/dotfiles.nix;
+        fonts = ./modules/common/fonts/fonts.nix;
+      };
     };
 }
-````
