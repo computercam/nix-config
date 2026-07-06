@@ -6,15 +6,6 @@ This repository is the **public** half of a two-repo architecture. It exports re
 
 ## Architecture
 
-**🔒 Private repo** — hosts, secrets, profiles
-
-```mermaid
-flowchart LR
-  PF["flake.nix<br/>entry point"] --> P["profiles/<br/>override defaults"]
-  PF --> H["hosts/<br/>per-machine configs"]
-  PF --> SE["secrets/ & SSH key<br/>agenix vault & decryptor"]
-```
-
 **🌐 Public repo** — modules & presets *(this repo)*
 
 ```mermaid
@@ -23,6 +14,15 @@ flowchart LR
   F --> DP["darwinPresets.global<br/>macOS base modules"]
   NP --> M["modules/<br/>global · common · nixos · macos<br/>reusable module library"]
   DP --> M
+```
+
+**🔒 Private repo** — hosts, secrets, profiles
+
+```mermaid
+flowchart LR
+  PF["flake.nix<br/>entry point"] --> P["profiles/<br/>override defaults"]
+  PF --> H["hosts/<br/>per-machine configs"]
+  PF --> SE["secrets/ & SSH key<br/>agenix vault & decryptor"]
 ```
 
 The private repo connects to this public repo in two ways: its `flake.nix` declares `inputs.nix-config.url` pointing here, and host configs reference individual modules via `${nix-config}/modules/...` interpolation.
@@ -231,67 +231,29 @@ Module-specific options (like `cfg.ssh.port`, `cfg.docker.*`, `cfg.networking.*`
 
 ## Module Reference
 
-### Global (shared)
+Modules are organized by platform under `modules/`. Browse the directory for the full list — it changes frequently. What's here is the shape of it:
 
-| Module | Description |
-|--------|-------------|
-| `global/global.nix` | Core system packages, user creation, zsh, timezone, nix settings |
-| `global/options.nix` | Option declarations for `cfg.os`, `cfg.user`, `cfg.localization`, `cfg.shareduser` |
-| `global/nixos.nix` | NixOS boot settings, i18n, `stateVersion`, shared user/group |
-| `global/macos.nix` | macOS `stateVersion`, `primaryUser` |
+### `global/` — shared between all platforms
 
-### Common (cross-platform)
+Core system setup: packages, user creation, zsh, timezone, nix settings, and the `cfg.*` option declarations that the rest of the modules depend on.
 
-| Module | Description |
-|--------|-------------|
-| `common/home/home.nix` | Home-manager: git, zsh, shell utilities, system tools |
-| `common/home/dotfiles.nix` | Dotfile management |
-| `common/home/getZshInitExtra.nix` | Zsh init helper (functional) |
-| `common/home/zshInitExtraConfig.nix` | Zsh init configuration (functional) |
-| `common/fonts/fonts.nix` | Font packages |
+### `common/` — cross-platform
 
-### NixOS
+Home-manager config (git, zsh, shell utilities), dotfiles, and font packages. Works on both NixOS and macOS.
 
-| Module | Pattern | Options |
-|--------|----------|---------|
-| `service-avahi` | A | — |
-| `service-audio` | A | — |
-| `service-audio-daw` | A | — |
-| `service-cloudflared` | C | Requires `cloudflaredConfig` |
-| `service-cron` | A | — |
-| `service-docker` | B | `cfg.docker.*`, `cfg.networking.*` |
-| `service-firewall` | A | — |
-| `service-flatpak` | A | — |
-| `service-kvm` | B | `cfg.kvm.*` |
-| `service-monitoring` | A | — |
-| `service-networking` | B | `cfg.networking.*` |
-| `service-phone` | A | — |
-| `service-podman` | A | — |
-| `service-printing` | A | — |
-| `service-resiliosync` | B | `cfg.resilio.*` |
-| `service-samba` | B | `cfg.samba.*` |
-| `service-ssh` | B | `cfg.ssh.port` |
-| `service-sudo` | A | — |
-| `service-tailscale` | C | Requires `tsConfig` |
-| `service-virtualbox` | A | — |
-| `desktop-environment` | A | — |
-| `desktop-environment-gnome` | A | — |
-| `desktop-environment-plasma` | A | — |
-| `desktop-environment-xfce` | A | — |
-| `display-manager-gdm` | A | — |
-| `display-manager-lightdm` | A | — |
-| `display-manager-sddm` | A | — |
-| `hardware-nvidia` | A | — |
-| `software-gaming` | A | — |
-| `software-obs` | A | — |
+### `nixos/` — Linux-only
 
-### macOS
+Grouped by category, each following one of the three module patterns described above:
 
-| Module | Pattern | Description |
-|--------|----------|-------------|
-| `service-homebrew` | A | Homebrew package management |
-| `service-yabai` | A | Tiling window manager |
-| `system-defaults` | A | macOS system preferences |
+- **`service-*`** — system services (ssh, docker, networking, avahi, tailscale, cloudflared, samba, printing, etc.)
+- **`desktop-environment-*`** — desktop environments (plasma, gnome, xfce)
+- **`display-manager-*`** — login managers (gdm, sddm, lightdm)
+- **`hardware-*`** — hardware drivers (nvidia)
+- **`software-*`** — software bundles (gaming, obs)
+
+### `macos/` — macOS-only
+
+Homebrew package management, yabai tiling window manager, and macOS system defaults.
 
 ## Setup
 
