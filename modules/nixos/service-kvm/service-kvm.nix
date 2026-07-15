@@ -112,12 +112,18 @@ in
           with pkgs;
           [
             qemu
-            virt-manager
-            dconf
             libguestfs
             pciutils
             python3
             iproute2
+          ]
+        )
+        ++ optionals (cfg.host.tools.enable && cfg.host.tools.gui) (
+          with pkgs;
+          [
+            virt-manager
+            virt-viewer
+            dconf
           ]
         )
         ++ cfg.host.tools.extraPackages;

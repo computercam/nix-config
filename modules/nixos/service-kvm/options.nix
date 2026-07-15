@@ -757,7 +757,12 @@ in
           enable = mkOption {
             type = types.bool;
             default = true;
-            description = "Install KVM/QEMU management tools.";
+            description = "Install core KVM/QEMU management tools (qemu, libguestfs, pciutils, etc.).";
+          };
+          gui = mkOption {
+            type = types.bool;
+            default = false;
+            description = "Install GUI client software (virt-manager, virt-viewer, dconf). Set to false on headless hosts.";
           };
           extraPackages = mkOption {
             type = types.listOf types.package;
