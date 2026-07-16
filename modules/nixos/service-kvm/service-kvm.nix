@@ -54,16 +54,6 @@ let
 
   # Generate the bundled hooks attrset from the user's selection.
   bundledHooks = lib.genAttrs cfg.host.libvirtd.hooks.bundled (name: bundledHookMap.${name});
-
-  # ───────── Storage pool XML ─────────
-  persistentPoolXML = pkgs.writeText "kvm-persistent-pool.xml" ''
-    <pool type='dir'>
-      <name>kvm-persistent</name>
-      <target>
-        <path>${cfg.host.storage.persistentPath}</path>
-      </target>
-    </pool>
-  '';
 in
 {
   imports = [
@@ -128,8 +118,49 @@ in
         )
         ++ cfg.host.tools.extraPackages;
 
+      # Default libvirt URI — so virsh, virt-manager, and virt-viewer
+      # connect to qemu:///system (where guests are defined) by default,
+      # instead of qemu:///session (per-user, empty by default).
+      environment.variables.LIBVIRT_DEFAULT_URI = "qemu:///system";
+
+      # Libvirt looks for hooks in /etc/libvirt/hooks/ but the NixOS module
+      # places them in /var/lib/libvirt/hooks/. Symlink so libvirt finds them.
+      environment.etc."libvirt/hooks".source = "/var/lib/libvirt/hooks";
+
       # ───────── User / permissions ─────────
-      users.users."${cfg.host.user}".extraGroups = [ "libvirtd" ];
+      # Manage-scope users -> libvirtd (full access); monitor-scope users ->
+      # kvm-monitors (read-only, enforced via the polkit rule below). No users
+      # are added by default; list them explicitly under
+      # cfg.kvm.host.libvirtd.users.{manage,monitor}.
+      users.groups.kvm-monitors = { };
+      users.users = mkMerge [
+        (genAttrs cfg.host.libvirtd.users.manage (u: {
+          extraGroups = [ "libvirtd" ];
+        }))
+        (genAttrs cfg.host.libvirtd.users.monitor (u: {
+          extraGroups = [ "kvm-monitors" ];
+        }))
+      ];
+
+      # Read-only monitor tier (polkit). Users in kvm-monitors get read-only
+      # access to qemu:///system: unix.monitor is allowed, unix.manage is
+      # denied. Enforced at the libvirt connection level (unlike per-op
+      # api.* actions, which libvirt does not check on NixOS). Numbered 11
+      # so it runs AFTER NixOS's 10-nixos.rules (which grants unix.manage to
+      # the libvirtd group) -- first-match-wins means manage-scope users
+      # keep full access even if also in kvm-monitors.
+      environment.etc."polkit-1/rules.d/11-kvm-monitors.rules".text = ''
+        polkit.addRule(function(action, subject) {
+            if (subject.isInGroup("kvm-monitors")) {
+                if (action.id == "org.libvirt.unix.monitor") {
+                    return polkit.Result.YES;
+                }
+                if (action.id == "org.libvirt.unix.manage") {
+                    return polkit.Result.NO;
+                }
+            }
+        });
+      '';
 
       security.pam.loginLimits = [
         {
@@ -197,8 +228,38 @@ in
       );
     }
 
-    # ───────── Persistent storage pool ─────────
+    # ───────── Persistent storage: bind mount + storage pool ─────────
+    # When persistentPath is set, bind-mount ${persistentPath}/host to
+    # /var/lib/libvirt and register ${persistentPath}/guests as a libvirt pool.
     (mkIf (cfg.host.storage.persistentPath != null) {
+      # Create directories with correct permissions before the bind mount
+      systemd.services.kvm-prepare-state-dir = {
+        description = "Prepare libvirt state directory on persistent storage";
+        wantedBy = [ "multi-user.target" ];
+        before = [
+          "libvirtd.service"
+          "kvm-cleanup.service"
+        ];
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+        };
+        script = ''
+          mkdir -p "${cfg.host.storage.persistentPath}/host"
+          mkdir -p "${cfg.host.storage.persistentPath}/guests"
+          chown root:root "${cfg.host.storage.persistentPath}/host"
+          chmod 755 "${cfg.host.storage.persistentPath}/host"
+        '';
+      };
+
+      # Bind mount the persistent state path to /var/lib/libvirt
+      fileSystems."/var/lib/libvirt" = {
+        device = "${cfg.host.storage.persistentPath}/host";
+        fsType = "none";
+        options = [ "bind" ];
+      };
+
+      # Register the guests directory as a libvirt storage pool
       systemd.services.kvm-host-setup = {
         description = "KVM host storage pool setup";
         after = [ "libvirtd.service" ];
@@ -210,10 +271,19 @@ in
         };
         path = [ config.virtualisation.libvirtd.package ];
         script = ''
-          mkdir -p "${cfg.host.storage.persistentPath}"
-          virsh pool-define "${persistentPoolXML}" 2>/dev/null || true
-          virsh pool-start kvm-persistent 2>/dev/null || true
-          virsh pool-autostart kvm-persistent 2>/dev/null || true
+          # Only define the pool if it doesn't already exist
+          if ! virsh pool-list --all --name 2>/dev/null | grep -qw kvm-guests; then
+            virsh pool-define /dev/stdin <<'POOLXML'
+          <pool type='dir'>
+            <name>kvm-guests</name>
+            <target>
+              <path>${cfg.host.storage.persistentPath}/guests</path>
+            </target>
+          </pool>
+          POOLXML
+          fi
+          virsh pool-start kvm-guests 2>/dev/null || true
+          virsh pool-autostart kvm-guests 2>/dev/null || true
         '';
       };
     })

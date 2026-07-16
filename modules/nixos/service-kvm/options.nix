@@ -40,14 +40,193 @@ let
           default = "x86_64";
           description = "Guest CPU architecture.";
         };
-        cpuMode = mkOption {
-          type = types.enum [
-            "host-passthrough"
-            "host-model"
-            "custom"
-          ];
-          default = "host-passthrough";
-          description = "CPU model exposed to the guest.";
+        cpu = mkOption {
+          type = types.submodule {
+            options = {
+              mode = mkOption {
+                type = types.enum [
+                  "host-passthrough"
+                  "host-model"
+                  "custom"
+                ];
+                default = "host-passthrough";
+                description = "CPU model exposed to the guest.";
+              };
+              reportedModel = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = ''
+                  CPU model to report when mode = "custom" (e.g.
+                  "Haswell-noTSX-IBRS"). Ignored for other modes.
+                '';
+                example = "Haswell-noTSX-IBRS";
+              };
+              sockets = mkOption {
+                type = types.nullOr types.ints.positive;
+                default = null;
+                description = ''
+                  Number of CPU sockets for explicit topology. When set
+                  together with cores and threads, generates a <topology>
+                  element. Their product must equal vcpus.
+                '';
+              };
+              cores = mkOption {
+                type = types.nullOr types.ints.positive;
+                default = null;
+                description = "Number of cores per socket for topology.";
+              };
+              threads = mkOption {
+                type = types.nullOr types.ints.positive;
+                default = null;
+                description = "Number of threads per core for topology.";
+              };
+              hidden = mkOption {
+                type = types.bool;
+                default = false;
+                description = ''
+                  Hide the hypervisor status from the guest — useful for
+                  gaming and anti-cheat compatibility. Adds
+                  <kvm><hidden state='on'/></kvm> to domain features.
+                '';
+              };
+              flags = mkOption {
+                type = types.listOf (
+                  types.submodule {
+                    options = {
+                      name = mkOption {
+                        type = types.str;
+                        description = "CPU feature name (e.g. \"pcid\", \"hypervisor\").";
+                        example = "pcid";
+                      };
+                      policy = mkOption {
+                        type = types.enum [
+                          "require"
+                          "force"
+                          "disable"
+                          "forbid"
+                          "optional"
+                        ];
+                        default = "require";
+                        description = "Feature policy.";
+                      };
+                    };
+                  }
+                );
+                default = [ ];
+                description = ''
+                  CPU feature flags with policies. Maps to <feature>
+                  elements inside <cpu>.
+                '';
+                example = [
+                  {
+                    name = "pcid";
+                    policy = "require";
+                  }
+                  {
+                    name = "hypervisor";
+                    policy = "disable";
+                  }
+                ];
+              };
+            };
+          };
+          default = { };
+          description = "CPU configuration. Maps to <cpu>.";
+        };
+
+        # ───── Clock ─────
+        clock = mkOption {
+          type = types.submodule {
+            options = {
+              offset = mkOption {
+                type = types.enum [
+                  "utc"
+                  "localtime"
+                  "timezone"
+                  "variable"
+                ];
+                default = "utc";
+                description = ''
+                  Guest clock offset. Use "localtime" for Windows guests.
+                  Use "timezone" with the timezone option, or "variable"
+                  with the adjustment option.
+                '';
+              };
+              timezone = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = ''
+                  Timezone for offset = "timezone" (e.g. "America/New_York").
+                  Ignored for other offsets.
+                '';
+                example = "America/New_York";
+              };
+              adjustment = mkOption {
+                type = types.nullOr types.int;
+                default = null;
+                description = ''
+                  Seconds offset from UTC for offset = "variable".
+                  Ignored for other offsets.
+                '';
+              };
+            };
+          };
+          default = { };
+          description = "Guest clock configuration. Maps to <clock>.";
+        };
+
+        # ───── SMBIOS ─────
+        smbios = mkOption {
+          type = types.submodule {
+            options = {
+              manufacturer = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = "SMBIOS manufacturer string.";
+                example = "MyCorp";
+              };
+              product = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = "SMBIOS product name.";
+                example = "Virtual Workstation";
+              };
+              version = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = "SMBIOS product version.";
+              };
+              serial = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = "SMBIOS system serial number.";
+              };
+              uuid = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = ''
+                  SMBIOS system UUID. When null, libvirt generates a
+                  stable UUID from the domain name.
+                '';
+                example = "12345678-1234-1234-1234-123456789abc";
+              };
+              family = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = "SMBIOS family string.";
+              };
+              sku = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = "SMBIOS SKU number.";
+              };
+            };
+          };
+          default = { };
+          description = ''
+            SMBIOS fields exposed to the guest. Maps to
+            <sysinfo type='smbios'>.
+          '';
         };
 
         # ───── Storage ─────
@@ -116,7 +295,100 @@ let
                 readOnly = mkOption {
                   type = types.bool;
                   default = false;
-                  description = "Mount the disk read-only.";
+                  description = ''
+                    Mount the disk read-only. Automatically set to true when
+                    device = "cdrom".
+                  '';
+                };
+                device = mkOption {
+                  type = types.enum [
+                    "disk"
+                    "cdrom"
+                  ];
+                  default = "disk";
+                  description = ''
+                    Device type. Use "cdrom" for ISO images / installation
+                    media. CD-ROMs are automatically read-only.
+                  '';
+                };
+                boot = mkOption {
+                  type = types.nullOr types.ints.positive;
+                  default = null;
+                  description = ''
+                    Boot order priority for this device (1 = first). When null,
+                    boot order is auto-assigned: devices with explicit boot
+                    orders keep their value; remaining devices are assigned
+                    after the highest explicit order, in list order. If no
+                    device has an explicit boot order, they are assigned
+                    sequentially starting from 1.
+                  '';
+                };
+                # ── Disk performance / driver attributes (maps to <driver> attrs) ──
+                cache = mkOption {
+                  type = types.nullOr (
+                    types.enum [
+                      "none"
+                      "writeback"
+                      "writethrough"
+                      "unsafe"
+                      "directsync"
+                    ]
+                  );
+                  default = null;
+                  description = ''
+                    Disk cache mode. When null, the libvirt/QEMU default is
+                    used. "none" (O_DIRECT) is recommended for qcow2 with
+                    virtio for data integrity and performance.
+                  '';
+                };
+                aio = mkOption {
+                  type = types.nullOr (
+                    types.enum [
+                      "native"
+                      "threads"
+                      "io_uring"
+                    ]
+                  );
+                  default = null;
+                  description = ''
+                    Asynchronous I/O backend. "io_uring" offers the best
+                    performance on modern Linux kernels (5.1+).
+                  '';
+                };
+                discard = mkOption {
+                  type = types.nullOr (
+                    types.enum [
+                      "ignore"
+                      "unmap"
+                    ]
+                  );
+                  default = null;
+                  description = ''
+                    Whether to pass discard/TRIM requests to the host.
+                    Use "unmap" to enable TRIM support in the guest.
+                  '';
+                };
+                iothread = mkOption {
+                  type = types.nullOr types.ints.positive;
+                  default = null;
+                  description = ''
+                    Assign this disk to an IOThread (by number). The module
+                    auto-creates the required <iothreads> element based on
+                    the highest iothread number used across all disks.
+                  '';
+                };
+                ssd = mkOption {
+                  type = types.bool;
+                  default = false;
+                  description = "Expose the disk as an SSD to the guest.";
+                };
+                serial = mkOption {
+                  type = types.nullOr types.str;
+                  default = null;
+                  description = ''
+                    Serial number exposed to the guest for disk
+                    identification. Useful for udev rules inside the VM.
+                  '';
                 };
               };
             }
@@ -138,35 +410,6 @@ let
           type = types.bool;
           default = false;
           description = "Enable UEFI Secure Boot (requires firmware = \"uefi\" and tpm.enable).";
-        };
-        bootDevice = mkOption {
-          type = types.enum [
-            "hd"
-            "cdrom"
-            "network"
-            "fd"
-          ];
-          default = "hd";
-          description = "Primary boot device.";
-        };
-        installISO = mkOption {
-          type = types.nullOr types.path;
-          default = null;
-          description = ''
-            Local ISO image to attach as a CD-ROM device (for OS installation).
-            Mutually exclusive with installISOUrl.
-          '';
-        };
-        installISOUrl = mkOption {
-          type = types.nullOr types.str;
-          default = null;
-          description = ''
-            URL to download an ISO image and attach it as a CD-ROM device
-            (for OS installation). The ISO is downloaded to the guest's
-            storage directory on first boot if it doesn't already exist.
-            Mutually exclusive with installISO.
-          '';
-          example = "https://releases.ubuntu.com/24.04/ubuntu-24.04.2-desktop-amd64.iso";
         };
 
         # ───── Cloud-init ─────
@@ -226,6 +469,23 @@ let
                   Extra cloud-config YAML appended to the user-data.
                   Use for advanced cloud-init configuration not covered by
                   the other options.
+                '';
+              };
+              networkConfig = mkOption {
+                type = types.nullOr types.lines;
+                default = null;
+                description = ''
+                  Network configuration YAML for cloud-init (netplan v2
+                  format), written to the seed ISO as `network-config`.
+                  When null (the default), a config is generated automatically
+                  that enables DHCP on each declared network interface,
+                  matched by its deterministic MAC address — so cloud-init
+                  always configures the interface that matches the MAC the VM
+                  actually receives, even if the VM name (and thus the MAC)
+                  changes between rebuilds. Set this to provide static IP
+                  configuration or to override the generated config entirely;
+                  in that case you are responsible for matching the interface
+                  (e.g. by MAC or name) yourself.
                 '';
               };
             };
@@ -304,7 +564,13 @@ let
                 mac = mkOption {
                   type = types.nullOr types.str;
                   default = null;
-                  description = "MAC address. Auto-generated if null.";
+                  description = ''
+                    MAC address. When null, a deterministic MAC is derived
+                    from the guest name and interface index (52:54:00 prefix,
+                    the QEMU/KVM locally-administered range). Pinning the MAC
+                    keeps it stable across rebuilds so DHCP leases, firewall
+                    rules, and libvirt's stored domain XML stay reproducible.
+                  '';
                 };
               };
             }
@@ -364,6 +630,14 @@ let
                         description = "USB product ID (hex, e.g. \"5411\").";
                         example = "5411";
                       };
+                      usb3 = mkOption {
+                        type = types.bool;
+                        default = false;
+                        description = ''
+                          Use USB 3.0 (qemu-xhci controller) instead of the
+                          default USB 2.0. Enable for higher transfer speeds.
+                        '';
+                      };
                     };
                   }
                 );
@@ -409,6 +683,22 @@ let
                   Path to an age-encrypted file containing the graphics password.
                   When set, the password is decrypted via agenix and applied to
                   the SPICE/VNC server after VM start. When null, no password is set.
+                '';
+              };
+              clipboard = mkOption {
+                type = types.bool;
+                default = false;
+                description = ''
+                  Enable clipboard sharing between host and guest. Only effective
+                  with graphics.type = "spice".
+                '';
+              };
+              fileTransfer = mkOption {
+                type = types.bool;
+                default = false;
+                description = ''
+                  Enable file transfer between host and guest via SPICE.
+                  Only effective with graphics.type = "spice".
                 '';
               };
             };
@@ -462,6 +752,166 @@ let
           };
           default = { };
           description = "Video configuration.";
+        };
+
+        # ───── Serial console ─────
+        serial = mkOption {
+          type = types.submodule {
+            options = {
+              enable = mkOption {
+                type = types.bool;
+                default = false;
+                description = ''
+                  Enable a serial console for headless guest access.
+                  Maps to <serial> and <console> elements.
+                '';
+              };
+              port = mkOption {
+                type = types.nullOr types.ints.port;
+                default = null;
+                description = ''
+                  TCP port for serial console output (bound on
+                  127.0.0.1). When null, uses a PTY (accessible via
+                  virsh console).
+                '';
+              };
+            };
+          };
+          default = { };
+          description = "Serial console configuration.";
+        };
+
+        # ───── Audio ─────
+        audio = mkOption {
+          type = types.submodule {
+            options = {
+              enable = mkOption {
+                type = types.bool;
+                default = false;
+                description = "Enable an audio device for the guest.";
+              };
+              model = mkOption {
+                type = types.enum [
+                  "ich9"
+                  "ac97"
+                  "es1370"
+                  "usb"
+                  "none"
+                ];
+                default = "ich9";
+                description = ''
+                  Audio hardware model. "ich9" (Intel HD Audio) is the
+                  modern default for q35 machines.
+                '';
+              };
+            };
+          };
+          default = { };
+          description = "Audio configuration. Maps to <sound>.";
+        };
+
+        # ───── VirtIO RNG ─────
+        rng = mkOption {
+          type = types.submodule {
+            options = {
+              enable = mkOption {
+                type = types.bool;
+                default = false;
+                description = ''
+                  Enable a VirtIO random number generator, feeding host
+                  entropy to the guest. Reduces boot time and improves
+                  cryptographic operations inside the VM.
+                '';
+              };
+              rateBytes = mkOption {
+                type = types.nullOr types.ints.positive;
+                default = null;
+                description = ''
+                  Maximum bytes per period to feed. When null, no rate
+                  limiting is applied.
+                '';
+              };
+              ratePeriod = mkOption {
+                type = types.nullOr types.ints.positive;
+                default = null;
+                description = ''
+                  Rate-limiting period in milliseconds. Used with
+                  rateBytes.
+                '';
+              };
+            };
+          };
+          default = { };
+          description = ''
+            VirtIO RNG configuration. Maps to
+            <rng model='virtio'>.
+          '';
+        };
+
+        # ───── Hardware watchdog ─────
+        watchdog = mkOption {
+          type = types.submodule {
+            options = {
+              enable = mkOption {
+                type = types.bool;
+                default = false;
+                description = ''
+                  Enable a hardware watchdog. If the guest fails to pet
+                  the watchdog in time, the configured action fires.
+                '';
+              };
+              model = mkOption {
+                type = types.enum [
+                  "i6300esb"
+                  "ib700"
+                  "diag288"
+                  "itco"
+                ];
+                default = "itco";
+                description = ''
+                  Watchdog device model. "itco" (Intel TCO) is the
+                  modern default for q35 machines.
+                '';
+              };
+              action = mkOption {
+                type = types.enum [
+                  "reset"
+                  "shutdown"
+                  "poweroff"
+                  "pause"
+                  "dump"
+                  "none"
+                ];
+                default = "reset";
+                description = "Action when the watchdog fires.";
+              };
+            };
+          };
+          default = { };
+          description = "Hardware watchdog. Maps to <watchdog>.";
+        };
+
+        # ───── QEMU guest agent ─────
+        agent = mkOption {
+          type = types.submodule {
+            options = {
+              enable = mkOption {
+                type = types.bool;
+                default = false;
+                description = ''
+                  Enable the QEMU guest agent virtio-serial channel.
+                  Requires qemu-guest-agent installed inside the guest.
+                  Enables libvirt to query guest OS details (IP
+                  addresses, filesystem usage, etc.).
+                '';
+              };
+            };
+          };
+          default = { };
+          description = ''
+            QEMU guest agent. Maps to a <channel> with virtio-serial
+            using the org.qemu.guest_agent.0 name.
+          '';
         };
 
         # ───── Lifecycle ─────
@@ -636,6 +1086,37 @@ in
             default = [ ];
             description = "Extra command-line arguments passed to libvirtd.";
           };
+          users = mkOption {
+            type = types.submodule {
+              options = {
+                manage = mkOption {
+                  type = types.listOf types.str;
+                  default = [ ];
+                  description = ''
+                    Usernames added to the `libvirtd` group — full read-write
+                    access to qemu:///system (virt-manager, virsh, lifecycle
+                    control). Edits by these users are still reverted to the
+                    Nix-defined config by the per-guest XML-edit watch service.
+                  '';
+                };
+                monitor = mkOption {
+                  type = types.listOf types.str;
+                  default = [ ];
+                  description = ''
+                    Usernames added to the `kvm-monitors` group — read-only
+                    access to qemu:///system only. These users can view domains
+                    (virsh -r, virt-viewer) but cannot define, edit, start,
+                    stop, or delete them; manage-scoped actions are denied at
+                    the libvirt connection level via polkit. Note: virt-manager
+                    opens read-write connections and so will NOT work for
+                    monitor users — use virsh -r / virt-viewer instead.
+                  '';
+                };
+              };
+            };
+            default = { };
+            description = "Users granted libvirt access, split by scope (manage vs monitor).";
+          };
           hooks = mkOption {
             type = types.submodule {
               options = {
@@ -653,6 +1134,9 @@ in
                     - "gpu-passthrough": unbinds PCI hostdevs from the host driver
                       before VM start and rebinds them after VM stop.
                     - "libvirt-nosleep": inhibits host sleep while any VM is running.
+
+                    The nix-sync hook (enforces Nix-defined XML on every VM start)
+                    is always enabled and cannot be disabled via this option.
                   '';
                 };
                 qemu = mkOption {
@@ -677,23 +1161,19 @@ in
     storage = mkOption {
       type = types.submodule {
         options = {
-          statePath = mkOption {
-            type = types.path;
-            default = "/var/lib/libvirt";
-            description = ''
-              Libvirt state directory. Contains daemon config, runtime state,
-              and the default storage location for guests without a storagePath.
-              This is on the root filesystem and may not survive reimaging.
-            '';
-          };
           persistentPath = mkOption {
             type = types.nullOr types.path;
             default = null;
             description = ''
-              Base directory for persistent guest storage (e.g. on a ZFS dataset
-              or separate disk). When set, guests with a storagePath store their
-              disks here. Also registered as a libvirt storage pool for
-              visibility in virt-manager. When null, guests fall back to statePath.
+              Base directory for all persistent KVM storage on a separate disk
+              or ZFS dataset. When set, the module:
+              - Bind-mounts ''${persistentPath}/host/ to /var/lib/libvirt (NVRAM,
+                TPM state, domain definitions — survives host reinstalls)
+              - Stores guest disk images under ''${persistentPath}/guests/<name>/
+              - Registers ''${persistentPath}/guests/ as a libvirt storage pool
+
+              When null, libvirt uses its default /var/lib/libvirt and guest
+              disks are stored under /var/lib/libvirt/qemu/<name>/.
             '';
           };
         };
