@@ -1,3 +1,13 @@
+# Generates a zsh init script from the zshInitExtraConfig attribute set.
+#
+# Takes a config attrset (see zshInitExtraConfig.nix for the schema) and produces
+# a shell script that sets up fpaths, sources, paths, oh-my-zsh, variables,
+# aliases, options, completions, keybindings, and extras — each section only
+# included if the corresponding config key is non-empty.
+#
+# The three helper functions (pathIf, sourceIf, fpathIf) silently skip entries
+# whose target path doesn't exist, so Nix store paths coexist with optional
+# local paths like $HOME/.local/bin.
 {
   lib,
   pkgs,

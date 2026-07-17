@@ -1,18 +1,15 @@
+# Core system fonts required for basic functionality.
+# Personal fonts (nerd-fonts, inter, etc.) should be defined
+# in your private config via cfg.home.extraPackages or a fonts module.
 {
-  config,
-  lib,
   pkgs,
-  options,
   ...
 }:
 {
   fonts = {
     packages = with pkgs; [
-      nerd-fonts.fantasque-sans-mono
-      nerd-fonts.victor-mono
-      corefonts
-      inter
-      dejavu_fonts
+      corefonts # Microsoft core web fonts (Arial, Times New Roman, etc.)
+      dejavu_fonts # Standard Linux font with broad Unicode coverage
     ];
   };
 }

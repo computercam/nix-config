@@ -1,125 +1,106 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
-
-with pkgs;
-with pkgs.stdenv;
-with lib;
-
-{
-  ohMyZsh = {
-    enable = true;
-    plugins = [ "git" ];
-  };
-  variables = {
-    LESS_TERMCAP_mb = "$(tput bold; tput setaf 2)";
-    LESS_TERMCAP_md = "$(tput bold; tput setaf 6)";
-    LESS_TERMCAP_me = "$(tput sgr0)";
-    LESS_TERMCAP_mh = "$(tput dim)";
-    LESS_TERMCAP_mr = "$(tput rev)";
-    LESS_TERMCAP_se = "$(tput rmso; tput sgr0)";
-    LESS_TERMCAP_so = "$(tput bold; tput setaf 3; tput setab 4)";
-    LESS_TERMCAP_ue = "$(tput rmul; tput sgr0)";
-    LESS_TERMCAP_us = "$(tput smul; tput bold; tput setaf 7)";
-    LESS_TERMCAP_ZN = "$(tput ssubm)";
-    LESS_TERMCAP_ZO = "$(tput ssupm)";
-    LESS_TERMCAP_ZV = "$(tput rsubm)";
-    LESS_TERMCAP_ZW = "$(tput rsupm)";
-    LESS = "--RAW-CONTROL-CHARS";
-    # TERMINAL = "${pkgs.alacritty}/bin/alacritty";
-    # EDITOR = "${pkgs.neovim}/bin/nvim";
-    # VISUAL = "${pkgs.vscode}/bin/code";
-    TERM = "xterm-256color";
-    PYENV_ROOT = "$HOME/.pyenv";
-    NVM_DIR = "$HOME/.nvm";
-  };
-  aliases = {
-    cat = "${pkgs.bat}/bin/bat";
-    cd = "z";
-    clearhistory = "cat /dev/null > $HOME/.zsh_history ; exit";
-    less = "${pkgs.bat}/bin/bat";
-    ls = "${pkgs.eza}/bin/eza --icons -h";
-    lsip = "${pkgs.curl}/bin/curl http://ipecho.net/plain; echo";
-    lsnetwork = "clear ; sudo ${pkgs.nmap}/bin/nmap -sS -T aggressive 192.168.0.0/24 | less";
-    lsports = "clear ; ${pkgs.nmap}/bin/nmap -sS -T aggressive localhost";
-    vi = "${pkgs.neovim}/bin/nvim";
-    vim = "${pkgs.neovim}/bin/nvim";
-    rebuild = (
-      if config.cfg.os.name == "nixos" then
-        "sudo nixos-rebuild switch"
-      else if config.cfg.os.name == "macos" then
-        "nix --show-trace --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake $HOME/_unixconf_nix/flake.nix"
-      else
-        "echo"
-    );
-  };
-  setOpts = [
-    "AUTOCD"
-    "AUTOPUSHD"
-    "COMPLETE_ALIASES"
-    "CORRECT"
-    "EXTENDED_HISTORY"
-    "EXTENDEDGLOB"
-    "HIST_EXPIRE_DUPS_FIRST"
-    "HIST_FCNTL_LOCK"
-    "HIST_IGNORE_DUPS"
-    "HIST_IGNORE_SPACE"
-    "NOBEEP"
-    "NOCASEGLOB"
-    "NOCHECKJOBS"
-    "NUMERICGLOBSORT"
-    "PROMPT_SUBST"
-    "RCEXPANDPARAM"
-    "SHARE_HISTORY"
-  ];
-  completions = {
-    accept-exact = "'*(N)'";
-    cache-path = "~/.zsh/cache";
-    list-colors = ''"\$\{(s.:.)LS_COLORS\}"'';
-    matcher-list = "'m:{a-zA-Z}={A-Za-z}'";
-    rehash = "true";
-    use-cache = "on";
-  };
-  keybindings = {
-    delete-char = "\\e[3~"; # delete
-    forward-char = "^[[c"; # right key
-    backward-char = "^[[d"; # left key
-    forward-word = "^[[1;5C"; # ctrl + right
-    backward-word = "^[[1;5D"; # ctrl + left
-    backward-kill-word = "^[[1;7D"; # ctrl + alt + left
-    kill-word = "^[[1;7C"; # ctrl + alt + right
-    history-substring-search-down = "^[[B"; # down arrow history substring search
-    history-substring-search-up = "^[[A"; # up arrow history substring search
-    beginning-of-line = "^[[H"; # [Home] - Go to beginning of line
-    end-of-line = "^[[F"; # [End] - Go to end of line
-  };
-  paths = [
-    "$HOME/scripts"
-    "$HOME/.cargo/bin"
-    "$HOME/.local/bin"
-    "$PYENV_ROOT/bin"
-    "/usr/local/bin"
-    # "/usr/libexec/java_home"
-    # "/run/current-system/sw/bin/"
-  ];
-  fpaths = with pkgs; [
-    "${zsh-completions}/share/zsh/site-functions"
-    "${zsh-fast-syntax-highlighting}/share/zsh/site-functions"
-  ];
-  sources = with pkgs; [
-    "${zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-    "${zsh-history-substring-search}/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
-    "${zsh-you-should-use}/share/zsh/plugins/you-should-use/you-should-use.plugin.zsh"
-  ];
-  extras = [
-    # ''(eval "nohup ${pkgs.pywal}/bin/wal -Rn" > /dev/null 2>&1 &)''
-    ''eval "$(${pkgs.starship}/bin/starship init zsh)"''
-    ''eval "$(${pkgs.zoxide}/bin/zoxide init zsh)"''
-    ''eval "$(${pkgs.pyenv}/bin/pyenv init -)"''
-    ''[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'' # This loads nvm
-    ''[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"'' # This loads nvm bash_completion
-  ];
-}
+# Example zshInitExtraConfig.nix
+#
+# This file defines your zsh configuration as a Nix attribute set.
+# Copy this to your private config and customize it.
+# Set cfg.home.zshInitExtraConfigFile to the path of your config file.
+#
+# {
+#   config,
+#   lib,
+#   pkgs,
+#   ...
+# }:
+#
+# with pkgs;
+# with pkgs.stdenv;
+# with lib;
+#
+# {
+#   ohMyZsh = {
+#     enable = true;
+#     plugins = [ "git" ];
+#   };
+#
+#   variables = {
+#     # TERM = "xterm-256color";
+#     # PYENV_ROOT = "$HOME/.pyenv";
+#     # NVM_DIR = "$HOME/.nvm";
+#     # LESS = "--RAW-CONTROL-CHARS";
+#     # LESS_TERMCAP_mb = "$(tput bold; tput setaf 2)";
+#     # LESS_TERMCAP_md = "$(tput bold; tput setaf 6)";
+#     # LESS_TERMCAP_me = "$(tput sgr0)";
+#   };
+#
+#   aliases = {
+#     # cat = "${pkgs.bat}/bin/bat";
+#     # ls = "${pkgs.eza}/bin/eza --icons -h";
+#     # vi = "${pkgs.neovim}/bin/nvim";
+#     # vim = "${pkgs.neovim}/bin/nvim";
+#     # cd = "z";
+#   };
+#
+#   setOpts = [
+#     # "AUTOCD"
+#     # "AUTOPUSHD"
+#     # "COMPLETE_ALIASES"
+#     # "CORRECT"
+#     # "EXTENDED_HISTORY"
+#     # "EXTENDEDGLOB"
+#     # "HIST_EXPIRE_DUPS_FIRST"
+#     # "HIST_FCNTL_LOCK"
+#     # "HIST_IGNORE_DUPS"
+#     # "HIST_IGNORE_SPACE"
+#     # "NOBEEP"
+#     # "NOCASEGLOB"
+#     # "NOCHECKJOBS"
+#     # "NUMERIC_GLOB_SORT"
+#     # "PROMPT_SUBST"
+#     # "RCEXPANDPARAM"
+#     # "SHARE_HISTORY"
+#   ];
+#
+#   completions = {
+#     # accept-exact = "'*(N)'";
+#     # cache-path = "~/.zsh/cache";
+#     # list-colors = ''"\$\{(s.:.)LS_COLORS\}"'';
+#     # matcher-list = "'m:{a-zA-Z}={A-Za-z}'";
+#     # rehash = "true";
+#     # use-cache = "on";
+#   };
+#
+#   keybindings = {
+#     # delete-char = "\\e[3~";
+#     # forward-char = "^[[c";
+#     # backward-char = "^[[d";
+#     # forward-word = "^[[1;5C";
+#     # backward-word = "^[[1;5D";
+#     # backward-kill-word = "^[[1;7D";
+#     # kill-word = "^[[1;7C";
+#     # history-substring-search-down = "^[[B";
+#     # history-substring-search-up = "^[[A";
+#     # beginning-of-line = "^[[H";
+#     # end-of-line = "^[[F";
+#   };
+#
+#   paths = [
+#     # "$HOME/scripts"
+#     # "$HOME/.cargo/bin"
+#     # "$HOME/.local/bin"
+#   ];
+#
+#   fpaths = with pkgs; [
+#     # "${zsh-completions}/share/zsh/site-functions"
+#     # "${zsh-fast-syntax-highlighting}/share/zsh/site-functions"
+#   ];
+#
+#   sources = with pkgs; [
+#     # "${zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+#     # "${zsh-history-substring-search}/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
+#     # "${zsh-you-should-use}/share/zsh/plugins/you-should-use/you-should-use.plugin.zsh"
+#   ];
+#
+#   extras = [
+#     # ''eval "$(${pkgs.starship}/bin/starship init zsh)"''
+#     # ''eval "$(${pkgs.zoxide}/bin/zoxide init zsh)"''
+#   ];
+# }

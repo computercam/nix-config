@@ -1,3 +1,11 @@
+# Automatically symlinks every file in cfg.home.dotfilesDir into the user's home
+# directory, preserving the relative path structure. For example:
+#
+#   cfg.home.dotfilesDir = ./dotfiles;
+#   ./dotfiles/.config/git/config  ->  ~/.config/git/config
+#   ./dotfiles/.zshrc              ->  ~/.zshrc
+#
+# Set cfg.home.dotfilesDir to a directory path to enable, or null to disable.
 {
   config,
   lib,
@@ -26,5 +34,7 @@ let
     }) (files dir));
 in
 {
-  config.home-manager.users."${config.cfg.user.name}".home.file = (mkMerge (dotfiles ./dotfiles));
+  config.home-manager.users."${config.cfg.user.name}".home.file =
+    mkIf (config.cfg.home.dotfilesDir != null)
+    (mkMerge (dotfiles config.cfg.home.dotfilesDir));
 }

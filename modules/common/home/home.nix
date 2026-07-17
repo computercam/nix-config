@@ -7,18 +7,25 @@
 with pkgs.stdenv;
 with lib;
 let
-  fzshInitExtraConfig = import ./zshInitExtraConfig.nix;
-  zshInitExtraConfig = fzshInitExtraConfig {
-    config = config;
-    lib = lib;
-    pkgs = pkgs;
-  };
-  fgetZshInitExtra = import ./getZshInitExtra.nix;
-  getZshInitExtra = fgetZshInitExtra {
-    lib = lib;
-    pkgs = pkgs;
-    zshInitExtraConfig = zshInitExtraConfig;
-  };
+  zshInitExtra =
+    if config.cfg.home.zshInitExtraConfigFile != null then
+      let
+        fzshInitExtraConfig = import config.cfg.home.zshInitExtraConfigFile;
+        zshInitExtraConfig = fzshInitExtraConfig {
+          config = config;
+          lib = lib;
+          pkgs = pkgs;
+        };
+        fgetZshInitExtra = import ./getZshInitExtra.nix;
+      in
+      fgetZshInitExtra {
+        lib = lib;
+        pkgs = pkgs;
+        zshInitExtraConfig = zshInitExtraConfig;
+      }
+    else
+      "";
+
 in
 {
   home-manager.backupCommand = "${pkgs.trash-cli}/bin/trash";
@@ -32,9 +39,8 @@ in
     };
 
     programs.zsh.enable = true;
-    programs.zsh.initContent = getZshInitExtra;
+    programs.zsh.initContent = zshInitExtra;
 
-    # TODO need to make this optional with options
     home.packages =
       with pkgs;
       (
@@ -47,53 +53,14 @@ in
             lshw # system info
           ]
         else if config.cfg.os.name == "macos" then
-          [
-          ]
+          [ ]
         else
           [ ]
       )
       ++ [
         coreutils-full # generic
-
         findutils # search
-
-        bat # shell
-        eza # shell
-        zoxide # shell
-
-        fastfetch # system info
-        lsof # system info
-        htop # system info _ rust alt - ps # https://github.com/dalance/procs
-
-        nmap # networking
-        speedtest-cli # networking
-
-        bzip2 # archives
-        gzip # archives
-        p7zip # archives
-        unrar # archives
-        unzip # archives
-        zip # archives
-
-        curl # file transfer
-        rsync # file transfer and sync
-        wget # file transfer
-        lftp # file transfer
-
-        pandoc # multimedia
-        ffmpeg-full # multimedia
-        imagemagick # multimedia
       ]
-      ++ [
-        # cmatrix
-        # cowsay
-        # lolcat
-        # pipes
-        # colorz
-        # pywal
-        figlet
-        toilet
-      ];
+      ++ config.cfg.home.extraPackages;
   };
-
 }

@@ -102,6 +102,26 @@ with lib;
       description = "Group ID for the main user on the system";
     };
   };
+  options.cfg.home = {
+    zshInitExtraConfigFile = mkOption {
+      type = types.nullOr types.path;
+      default = null;
+      description = "Path to a zshInitExtraConfig.nix file for zsh configuration";
+    };
+
+    dotfilesDir = mkOption {
+      type = types.nullOr types.path;
+      default = null;
+      description = "Path to a directory of dotfiles to symlink into the home directory";
+    };
+
+    extraPackages = mkOption {
+      type = types.listOf types.package;
+      default = [ ];
+      description = "Extra packages to install for the user";
+    };
+  };
+
   options.cfg.shareduser = {
     name = mkOption {
       type = types.str;
