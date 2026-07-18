@@ -34,7 +34,7 @@ in
 
     programs.git = {
       enable = true;
-      settings.user.name = config.cfg.user.name;
+      settings.user.name = config.cfg.user.fullname;
       settings.user.email = config.cfg.user.email;
     };
 

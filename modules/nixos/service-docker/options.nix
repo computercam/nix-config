@@ -45,8 +45,8 @@ with lib;
       };
 
       iptables = mkOption {
-        type = types.str;
-        default = "true";
+        type = types.bool;
+        default = true;
         description = "Docker IP Tables Control";
       };
     };

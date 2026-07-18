@@ -7,6 +7,11 @@
 with lib;
 let
   cfg = config.cfg.ups;
+  passwordFile =
+    if cfg.passwordAgePath != null then
+      config.age.secrets.upsmon-password.path
+    else
+      "/etc/nut/upsmon.password";
 in
 {
   imports = [ ./options.nix ];
@@ -30,7 +35,7 @@ in
       };
 
       users.upsmon = {
-        passwordFile = "/etc/nut/upsmon.password";
+        inherit passwordFile;
         upsmon = "primary";
       };
 
@@ -38,7 +43,7 @@ in
         monitor.${config.cfg.os.hostname} = {
           system = config.cfg.os.hostname;
           user = "upsmon";
-          passwordFile = "/etc/nut/upsmon.password";
+          inherit passwordFile;
           type = "primary";
           powerValue = 1;
         };
@@ -52,8 +57,17 @@ in
       };
     };
 
-    # NUT requires a password file even for standalone use
-    environment.etc."nut/upsmon.password".text = "upsmon-local";
+    # Decrypt the upsmon password via agenix when an age path is provided.
+    # Falls back to a plaintext file in /etc (insecure — visible in the Nix store).
+    age.secrets.upsmon-password = mkIf (cfg.passwordAgePath != null) {
+      file = cfg.passwordAgePath;
+    };
+
+    # NUT requires a password file even for standalone use.
+    # Only used when passwordAgePath is NOT set (plaintext fallback — insecure).
+    environment.etc."nut/upsmon.password" = mkIf (cfg.passwordAgePath == null) {
+      text = "upsmon-local";
+    };
 
     # Shutdown script used by NOTIFYCMD when shutdownEarly is enabled.
     # Calls the standard NUT SHUTDOWNCMD to trigger a graceful poweroff.

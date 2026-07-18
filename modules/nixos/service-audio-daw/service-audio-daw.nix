@@ -33,9 +33,9 @@
       '';
     };
 
-    powerManagement.cpuFreqGovernor = "performance";
+    powerManagement.cpuFreqGovernor = lib.mkDefault "performance";
 
-    fileSystems."/".options = [ "noatime" ];
+    fileSystems."/".options = lib.mkDefault [ "noatime" ];
 
     security.pam.loginLimits = [
       {

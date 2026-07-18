@@ -18,7 +18,7 @@ with lib;
         enableWebUI = true;
         storagePath = config.cfg.resiliosync.storagePath;
         deviceName = config.cfg.resiliosync.deviceName;
-        httpListenAddr = "0.0.0.0";
+        httpListenAddr = config.cfg.resiliosync.httpListenAddr;
         httpListenPort = config.cfg.resiliosync.webPort;
         directoryRoot = config.cfg.resiliosync.directoryRoot;
       };

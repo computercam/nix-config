@@ -57,6 +57,16 @@ with lib;
       description = "Maximum time (seconds) to wait before starting the UPS driver at boot.";
     };
 
+    passwordAgePath = mkOption {
+      type = types.nullOr types.path;
+      default = null;
+      description = ''
+        Path to an age-encrypted file containing the NUT upsmon password.
+        When set, the password is decrypted at runtime via agenix instead of
+        being stored as plaintext in the world-readable Nix store.
+      '';
+    };
+
     pollInterval = mkOption {
       type = types.int;
       default = 5;

@@ -22,7 +22,7 @@
         "min protocol" = "SMB3";
         "aio read size" = "16384";
         "aio write size" = "16384";
-        "allow insecure wide links" = "yes";
+        "allow insecure wide links" = lib.mkDefault "no"; # security: prevents following symlinks outside share root when unix extensions are enabled. Override in your host config if needed.
         "browseable" = "yes";
         "case sensitive" = "yes";
         "default case" = "lower";
@@ -45,7 +45,7 @@
         "store dos attributes" = "yes";
         "unix extensions" = "yes";
         "use sendfile" = "yes";
-        "wide links" = "yes";
+        "wide links" = lib.mkDefault "no"; # security: don't follow symlinks outside share root. Override in your host config if needed.
 
         # OSX Specific Configurations
         "vfs objects" = "catia fruit streams_xattr";

@@ -34,5 +34,15 @@ with lib;
       default = 9000;
       description = "The web UI port for Resilio Sync.";
     };
+    httpListenAddr = mkOption {
+      type = types.str;
+      default = "127.0.0.1";
+      description = ''
+        Address for the Resilio Sync web UI to listen on.
+        Defaults to 127.0.0.1 (localhost only) for security.
+        Set to 0.0.0.0 to expose on all interfaces (not recommended
+        unless you have other access controls in place).
+      '';
+    };
   };
 }

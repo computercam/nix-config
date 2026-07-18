@@ -29,7 +29,7 @@ in
       settings = {
         listen-http = "127.0.0.1:${toString cfg.port}";
         auth-file = "/var/lib/ntfy-sh/user.db";
-        auth-default-access = if authEnabled then "deny-all" else "read-write";
+        auth-default-access = if authEnabled then cfg.authDefaultAccess else "read-write";
         behind-proxy = cfg.domain != null;
       } // (optionalAttrs (cfg.domain != null) {
         base-url = "https://${cfg.domain}";

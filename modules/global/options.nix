@@ -15,9 +15,9 @@ with lib;
     };
 
     version = mkOption {
-      type = types.str;
-      default = "latest";
-      description = "Operating System Version";
+      type = types.nullOr types.str;
+      default = null;
+      description = "Operating System Version (e.g. '24.11' for NixOS, '23.11' for nix-darwin). Must be set per-install.";
     };
 
     hostname = mkOption {
@@ -47,13 +47,13 @@ with lib;
     };
 
     longitude = mkOption {
-      type = types.flt;
+      type = types.float;
       default = 0.0;
       description = "Location Long";
     };
 
     latitude = mkOption {
-      type = types.flt;
+      type = types.float;
       default = 0.0;
       description = "Location Lat";
     };
@@ -101,6 +101,42 @@ with lib;
       default = null;
       description = "Group ID for the main user on the system";
     };
+
+    trusted = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Whether to grant the user trusted-user status on the Nix daemon (equivalent to root for build purposes)";
+    };
+  };
+
+  options.cfg.security = {
+    allowUserNamespaces = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Whether to allow unprivileged user namespaces";
+    };
+  };
+
+  options.cfg.users = {
+    mutableUsers = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Whether to allow mutable user management (passwd, etc.) outside Nix";
+    };
+  };
+
+  options.cfg.boot.tmp = {
+    useTmpfs = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Whether to mount /tmp as tmpfs (RAM-backed, cleared on reboot)";
+    };
+
+    cleanOnBoot = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Whether to clean /tmp on boot";
+    };
   };
   options.cfg.home = {
     zshInitExtraConfigFile = mkOption {
@@ -122,7 +158,27 @@ with lib;
     };
   };
 
-  options.cfg.shareduser = {
+    options.cfg.ssh = {
+      port = mkOption {
+        type = types.int;
+        default = 22;
+        description = "SSH Port";
+      };
+
+      passwordAuthentication = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Allow password-based SSH authentication. Disabled by default — use SSH keys instead.";
+      };
+
+      kbdInteractiveAuthentication = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Allow keyboard-interactive SSH authentication.";
+      };
+    };
+
+    options.cfg.shareduser = {
     name = mkOption {
       type = types.str;
       default = "shared";

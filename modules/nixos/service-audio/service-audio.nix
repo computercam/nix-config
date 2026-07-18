@@ -1,3 +1,5 @@
+# Audio support via PipeWire (PulseAudio-compatible, JACK-optional).
+# Bluetooth is in a separate module (service-bluetooth).
 {
   config,
   lib,
@@ -8,25 +10,6 @@
   config = {
     environment.systemPackages = with pkgs; [ pavucontrol ];
     users.users."${config.cfg.user.name}".extraGroups = [ "audio" ];
-    sound.enable = true;
-
-    hardware.bluetooth.enable = true;
-
-    # hardware.pulseaudio = {
-    #   enable = true;
-    #   package = pkgs.pulseaudioFull;
-
-    #   extraConfig = ''
-    #     load-module module-switch-on-connect
-    #   '';
-
-    #   daemon.config = {
-    #     default-sample-format = "s24-32le";
-    #     default-sample-rate = "44100";
-    #   };
-    # };
-
-    hardware.pulseaudio.enable = false;
 
     security.rtkit.enable = true;
 
@@ -36,12 +19,8 @@
       alsa.support32Bit = true;
       pulse.enable = true;
 
-      # If you want to use JACK applications, uncomment this
-      #jack.enable = true;
-
-      # use the example session manager (no others are packaged yet so this is enabled by default,
-      # no need to redefine it in your config for now)
-      #media-session.enable = true;
+      # Uncomment to enable JACK applications:
+      # jack.enable = true;
     };
   };
 }

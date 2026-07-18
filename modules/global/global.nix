@@ -13,7 +13,6 @@ with lib;
     git
     vim
     age
-    nil
     nixd
   ];
   environment.variables.LANG = config.cfg.localization.lang;
@@ -21,11 +20,9 @@ with lib;
   nix.optimise.automatic = true;
   nix.settings.experimental-features = "nix-command flakes";
   nixpkgs.config.allowUnfree = true;
-  programs.zsh.enable = true;
   time.timeZone = config.cfg.localization.timezone;
 
-  # nix.settings.allowed-users = [ config.cfg.user.name ];
-  nix.settings.trusted-users = [ config.cfg.user.name ];
+  nix.settings.trusted-users = lib.optional config.cfg.user.trusted config.cfg.user.name;
 
   users.users."${config.cfg.user.name}" = (
     mkMerge [
@@ -58,7 +55,6 @@ with lib;
       )
       ({
         name = config.cfg.user.name;
-        shell = pkgs.zsh;
       })
     ]
   );

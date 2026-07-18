@@ -43,5 +43,17 @@ with lib;
         Leave null for local-only access without authentication.
       '';
     };
+
+    authDefaultAccess = mkOption {
+      type = types.enum [ "read-write" "read-only" "write-only" "deny-all" ];
+      default = "deny-all";
+      description = ''
+        Default access level for unauthenticated/unrecognized users when auth is enabled.
+        The admin user always gets full access regardless of this setting.
+        - "deny-all": no access without authentication (most secure)
+        - "read-only": can subscribe but not publish
+        - "read-write": can subscribe and publish
+      '';
+    };
   };
 }

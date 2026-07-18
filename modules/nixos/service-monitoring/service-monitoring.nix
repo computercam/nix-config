@@ -108,6 +108,9 @@ in
             cat > /etc/netdata/stream.conf <<CONF
             [$(cat ${apiKeyPath})]
                 enabled = yes
+                # Accept streaming from any IP — Netdata is intended to be accessed
+                # from the LAN or via a Cloudflare tunnel. The firewall restricts
+                # which IPs can reach the port.
                 allow from = *
                 default history = 3600
                 health enabled by default = auto

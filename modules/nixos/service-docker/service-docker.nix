@@ -35,7 +35,7 @@ with lib;
       enable = true;
       storageDriver = "overlay2";
       daemon.settings.shutdown-timeout = config.cfg.docker.shutdownTimeout;
-      extraOptions = ''--bip="${config.cfg.docker.networking.bip}" --data-root="${config.cfg.docker.storage_root}" --dns="${config.cfg.docker.networking.dns.primary}" --dns="${config.cfg.docker.networking.dns.secondary}" --iptables=${config.cfg.docker.networking.iptables}'';
+      extraOptions = ''--bip="${config.cfg.docker.networking.bip}" --data-root="${config.cfg.docker.storage_root}" --dns="${config.cfg.docker.networking.dns.primary}" --dns="${config.cfg.docker.networking.dns.secondary}" --iptables=${lib.boolToString config.cfg.docker.networking.iptables}'';
     };
   };
 }
